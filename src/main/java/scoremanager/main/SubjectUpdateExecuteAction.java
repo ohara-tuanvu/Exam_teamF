@@ -34,7 +34,9 @@ public class SubjectUpdateExecuteAction extends Action {
         // DAOのupdateメソッドを呼び出して、データベースを更新する
         // Gọi hàm update của DAO để cập nhật cơ sở dữ liệu
         sDao.update(subject);
-
+        
+        req.setAttribute("message", "変更しました。");
+        req.getRequestDispatcher("/scoremanager/main/subject_update.jsp").forward(req, res);
         // 6. レスポンス値をセット - なし
 
         // 7. JSPへフォワード (Điều hướng)
