@@ -22,9 +22,8 @@ location.href="<%= request.getContextPath() %>/scoremanager/main/Login.action";
 </script>
 
 </head>
-
+<%--fyf--%>
 <body>
-<!-- コメント追加　（ヴ） -->
 </body>
 
 </html>
