@@ -10,7 +10,7 @@
 
         <section class="me-4">
 
-            <!-- ① タイトル -->
+            <!-- ① タイトル h2 -->
             <h2 class="mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
                 科目情報変更
             </h2>
