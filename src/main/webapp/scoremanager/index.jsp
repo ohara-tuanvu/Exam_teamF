@@ -24,7 +24,7 @@ location.href="<%= request.getContextPath() %>/scoremanager/main/Login.action";
 </head>
 
 <body>
-<!-- コメント追加　（ヴ） -->
+<!-- コメント追加_vu-->
 </body>
 
 </html>
