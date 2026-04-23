@@ -24,7 +24,7 @@ location.href="<%= request.getContextPath() %>/scoremanager/main/Login.action";
 </head>
 
 <body>
-<!-- Không có nội dung, vì trang chỉ dùng để redirect -->
+<!-- コメント追加　（ヴ） -->
 </body>
 
 </html>
