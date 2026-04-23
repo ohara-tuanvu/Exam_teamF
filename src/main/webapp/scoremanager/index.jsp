@@ -22,7 +22,7 @@ location.href="<%= request.getContextPath() %>/scoremanager/main/Login.action";
 </script>
 
 </head>
-<%-- vuvuvuv --%>
+<%--fyf--%>
 <body>
 </body>
 
