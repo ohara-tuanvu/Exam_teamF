@@ -22,9 +22,8 @@ location.href="<%= request.getContextPath() %>/scoremanager/main/Login.action";
 </script>
 
 </head>
-
+<%-- vuvuvuv --%>
 <body>
-<!-- コメント追加_vu-->
 </body>
 
 </html>
