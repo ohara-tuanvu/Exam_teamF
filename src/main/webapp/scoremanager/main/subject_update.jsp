@@ -7,9 +7,21 @@
 
         <section class="me-4">
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">科目情報変更</h2>
+            
+            <c:if test="${not empty message}">
+    			<div class="alert alert-success mx-4 mt-2">${message}</div>
+
+    			<div class="mt-3 text-center">
+        			<a href="SubjectList.action" class="btn btn-secondary w-25">戻る</a>
+    			</div>
+
+    		<%-- Khi có message thì không hiển thị form --%>
+			</c:if>
+            
 
             <%-- Gửi dữ liệu đến SubjectUpdateExecuteAction để lưu vào DB --%>
             <%-- SubjectUpdateExecuteAction にデータを送信して DB に保存する --%>
+            <c:if test="${empty message}">
             <form action="SubjectUpdateExecute.action" method="post" class="mt-4 px-4">
 
                 <div class="mb-3 w-50">
@@ -37,6 +49,7 @@
                 </div>
 
             </form>
+            </c:if>
         </section>
 
     </c:param>
