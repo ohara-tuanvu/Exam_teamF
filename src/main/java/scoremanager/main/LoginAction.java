@@ -1,10 +1,12 @@
 package scoremanager.main;
 // Package chứa các Action thuộc module scoremanager/main
+// scoremanager/main モジュールに属する Action クラスをまとめるパッケージ
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tool.Action;
 // Action là lớp cha (framework tự xây) dùng để xử lý request
+// Action はリクエスト処理を行うための基底クラス（自作フレームワーク）
 
 public class LoginAction extends Action {
 
@@ -18,11 +20,11 @@ public class LoginAction extends Action {
 
         // リクエストパラメータ―の取得 2
         // なし
-        // Không lấy request parameter nào ở màn hình login (chỉ hiển thị form)
+        // Màn hình login chỉ hiển thị form → không lấy request parameter
 
         // DBからデータ取得 3
         // なし
-        // Không truy vấn DB ở bước này
+        // Không truy vấn DB ở bước hiển thị form login
 
         // ビジネスロジック 4
         // なし
@@ -30,14 +32,15 @@ public class LoginAction extends Action {
 
         // DBへデータ保存 5
         // なし
-        // Không lưu gì vào DB
+        // Không lưu dữ liệu vào DB
 
         // レスポンス値をセット 6
         // なし
         // Không set attribute nào cho request
 
         // JSPへフォワード 7
-        // Chuyển hướng sang trang login.jsp để hiển thị form đăng nhập
+        // Chuyển hướng sang login.jsp để hiển thị form đăng nhập
+        // ログイン画面（login.jsp）へフォワードしてフォームを表示
         req.getRequestDispatcher("/scoremanager/main/login.jsp").forward(req, res);
     }
 }
