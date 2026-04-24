@@ -33,7 +33,7 @@
 
                 <div class="mb-3 w-50">
                     <label class="form-label" for="subject-name-input">科目名</label>
-                    <%-- Hiển thị tên cũ từ biến 'subject' đã setAttribute ở Action --%>
+                    <%-- Hiển thị tên cũ từ biến 'subject' đã setAttribute ở Action fe--%>
                     <%-- Action で setAttribute された subject から既存の科目名を表示 --%>
                     <input class="form-control" type="text" id="subject-name-input" name="name"
                            value="${subject.name}" required placeholder="科目名を入力してください">
