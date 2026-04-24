@@ -18,7 +18,7 @@ public class Test {
     private Subject subject;
 
     // 学校情報
-    // Trường học
+    // Trường họcgg
     private School school;
 
     // 回数（テスト番号）
