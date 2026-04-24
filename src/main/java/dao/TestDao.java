@@ -13,23 +13,39 @@ import bean.Test;
 
 public class TestDao extends Dao {
 
+    // ============================
     // 基本SQL（schoolで絞る）
-    // SQL cơ bản lọc theo school
-    private String baseSql = "SELECT * FROM TEST WHERE SCHOOL_CD=?";
+    // ============================
+    private static final String BASE_SQL =
+            "SELECT * FROM TEST WHERE SCHOOL_CD=?";
 
     // ============================
-    // 1. 1件取得
+    // 1. 1件取得（外部用）
     // ============================
-    public Test get(Student student, Subject subject, School school, int no) throws Exception {
-
-        Test test = null;
+    public Test get(Student student, Subject subject, School school, int no)
+            throws Exception {
 
         Connection con = getConnection();
+        try {
+            return get(student, subject, school, no, con);
+        } finally {
+            if (con != null) con.close();
+        }
+    }
+
+    // ============================
+    // 1'. 1件取得（Connection 共有版）
+    // ============================
+    private Test get(Student student, Subject subject,
+                     School school, int no, Connection con)
+            throws Exception {
+
+        Test test = null;
         PreparedStatement st = null;
 
         try {
             st = con.prepareStatement(
-                baseSql + " AND STUDENT_NO=? AND SUBJECT_CD=? AND NO=?"
+                BASE_SQL + " AND STUDENT_NO=? AND SUBJECT_CD=? AND NO=?"
             );
 
             st.setString(1, school.getCd());
@@ -40,14 +56,12 @@ public class TestDao extends Dao {
             ResultSet rs = st.executeQuery();
 
             List<Test> list = postFilter(rs, school);
-
-            if (list.size() > 0) {
+            if (!list.isEmpty()) {
                 test = list.get(0);
             }
 
         } finally {
             if (st != null) st.close();
-            if (con != null) con.close();
         }
 
         return test;
@@ -56,7 +70,8 @@ public class TestDao extends Dao {
     // ============================
     // 2. ResultSet → List<Test>
     // ============================
-    private List<Test> postFilter(ResultSet rs, School school) throws Exception {
+    private List<Test> postFilter(ResultSet rs, School school)
+            throws Exception {
 
         List<Test> list = new ArrayList<>();
 
@@ -64,11 +79,12 @@ public class TestDao extends Dao {
         SubjectDao subDao = new SubjectDao();
 
         while (rs.next()) {
-
             Test t = new Test();
 
-            Student student = sDao.get(rs.getString("STUDENT_NO"), school);
-            Subject subject = subDao.get(rs.getString("SUBJECT_CD"), school);
+            Student student =
+                sDao.get(rs.getString("STUDENT_NO"), school);
+            Subject subject =
+                subDao.get(rs.getString("SUBJECT_CD"), school);
 
             t.setStudent(student);
             t.setSubject(subject);
@@ -84,12 +100,16 @@ public class TestDao extends Dao {
     }
 
     // ============================
-    // 3. filter
+    // 3. 条件検索（成績参照用）
     // ============================
-    public List<Test> filter(int entYear, String classNum, Subject subject, int num, School school) throws Exception {
+    public List<Test> filter(
+            int entYear,
+            String classNum,
+            Subject subject,
+            int no,
+            School school) throws Exception {
 
         List<Test> list = new ArrayList<>();
-
         Connection con = getConnection();
         PreparedStatement st = null;
 
@@ -97,9 +117,12 @@ public class TestDao extends Dao {
             String sql =
                 "SELECT t.* FROM TEST t " +
                 "JOIN STUDENT s ON t.STUDENT_NO = s.NO " +
-                "WHERE t.SCHOOL_CD=? AND s.ENT_YEAR=? AND t.CLASS_NUM=? AND t.SUBJECT_CD=?";
+                "WHERE t.SCHOOL_CD=? " +
+                "AND s.ENT_YEAR=? " +
+                "AND t.CLASS_NUM=? " +
+                "AND t.SUBJECT_CD=?";
 
-            if (num != 0) {
+            if (no != 0) {
                 sql += " AND t.NO=?";
             }
 
@@ -110,12 +133,44 @@ public class TestDao extends Dao {
             st.setString(3, classNum);
             st.setString(4, subject.getCd());
 
-            if (num != 0) {
-                st.setInt(5, num);
+            if (no != 0) {
+                st.setInt(5, no);
             }
 
             ResultSet rs = st.executeQuery();
+            list = postFilter(rs, school);
 
+        } finally {
+            if (st != null) st.close();
+            if (con != null) con.close();
+        }
+
+        return list;
+    }
+
+    // ============================================================
+    // ★★★ 4. 条件検索（成績一覧用：クラス＋科目のみ）★★★
+    // ============================================================
+    public List<Test> filter(School school, String classNum, String subjectCd)
+            throws Exception {
+
+        List<Test> list = new ArrayList<>();
+        Connection con = getConnection();
+        PreparedStatement st = null;
+
+        try {
+            String sql =
+                "SELECT t.* FROM TEST t " +
+                "WHERE t.SCHOOL_CD=? " +
+                "AND t.CLASS_NUM=? " +
+                "AND t.SUBJECT_CD=?";
+
+            st = con.prepareStatement(sql);
+            st.setString(1, school.getCd());
+            st.setString(2, classNum);
+            st.setString(3, subjectCd);
+
+            ResultSet rs = st.executeQuery();
             list = postFilter(rs, school);
 
         } finally {
@@ -127,12 +182,11 @@ public class TestDao extends Dao {
     }
 
     // ============================
-    // 4. save list
+    // 5. save list（成績登録）
     // ============================
     public boolean save(List<Test> list) throws Exception {
 
         Connection con = getConnection();
-
         try {
             for (Test t : list) {
                 save(t, con);
@@ -145,21 +199,30 @@ public class TestDao extends Dao {
     }
 
     // ============================
-    // 5. save 1件
+    // 6. save 1件（INSERT / UPDATE）
     // ============================
-    public boolean save(Test test, Connection con) throws Exception {
+    private boolean save(Test test, Connection con)
+            throws Exception {
 
         PreparedStatement st = null;
-        int count = 0;
+        int count;
 
         try {
-            // 既存チェック
-            Test old = get(test.getStudent(), test.getSubject(), test.getSchool(), test.getNo());
+            // 既存チェック（同 Connection）
+            Test old = get(
+                test.getStudent(),
+                test.getSubject(),
+                test.getSchool(),
+                test.getNo(),
+                con
+            );
 
             if (old == null) {
                 // INSERT
                 st = con.prepareStatement(
-                    "INSERT INTO TEST (STUDENT_NO, SUBJECT_CD, SCHOOL_CD, NO, POINT, CLASS_NUM) VALUES (?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO TEST " +
+                    "(STUDENT_NO, SUBJECT_CD, SCHOOL_CD, NO, POINT, CLASS_NUM) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)"
                 );
 
                 st.setString(1, test.getStudent().getNo());
@@ -172,7 +235,8 @@ public class TestDao extends Dao {
             } else {
                 // UPDATE
                 st = con.prepareStatement(
-                    "UPDATE TEST SET POINT=? WHERE STUDENT_NO=? AND SUBJECT_CD=? AND SCHOOL_CD=? AND NO=?"
+                    "UPDATE TEST SET POINT=? " +
+                    "WHERE STUDENT_NO=? AND SUBJECT_CD=? AND SCHOOL_CD=? AND NO=?"
                 );
 
                 st.setInt(1, test.getPoint());
@@ -189,5 +253,58 @@ public class TestDao extends Dao {
         }
 
         return count > 0;
+    }
+
+    // ============================================================
+    // 7. save list（学校単位で削除→再登録）
+    // ============================================================
+    public boolean save(List<Test> list, School school) throws Exception {
+
+        if (list == null || list.isEmpty()) {
+            return false;
+        }
+
+        Connection con = getConnection();
+        PreparedStatement st = null;
+
+        try {
+            // ----------------------------
+            // 1. 既存データ削除
+            // ----------------------------
+            String sqlDelete =
+                "DELETE FROM TEST WHERE SCHOOL_CD=? AND SUBJECT_CD=? AND NO=?";
+
+            st = con.prepareStatement(sqlDelete);
+            st.setString(1, school.getCd());
+            st.setString(2, list.get(0).getSubject().getCd());
+            st.setInt(3, list.get(0).getNo());
+            st.executeUpdate();
+            st.close();
+
+            // ----------------------------
+            // 2. INSERT
+            // ----------------------------
+            String sqlInsert =
+                "INSERT INTO TEST (STUDENT_NO, SUBJECT_CD, SCHOOL_CD, NO, POINT, CLASS_NUM) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+            st = con.prepareStatement(sqlInsert);
+
+            for (Test t : list) {
+                st.setString(1, t.getStudent().getNo());
+                st.setString(2, t.getSubject().getCd());
+                st.setString(3, school.getCd());
+                st.setInt(4, t.getNo());
+                st.setInt(5, t.getPoint());
+                st.setString(6, t.getClassNum());
+                st.executeUpdate();
+            }
+
+        } finally {
+            if (st != null) st.close();
+            if (con != null) con.close();
+        }
+
+        return true;
     }
 }

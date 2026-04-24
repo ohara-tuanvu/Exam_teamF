@@ -42,4 +42,10 @@ public class ClassNum implements Serializable {
         this.class_num = class_num;
     }
 
+    // 追加：JSP用の camelCase getter 
+    public String getClassNum() {
+        return class_num;
+    }
+    // ここまで追加
+
 }
