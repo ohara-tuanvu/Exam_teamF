@@ -1,6 +1,6 @@
-package dao;
-// Package chứa các lớp DAO – chuyên xử lý truy cập dữ liệu (database)
-// DB アクセス処理を行う DAO クラスをまとめるパッケージ
+package dao;  
+// VI: Khai báo package chứa lớp DAO  
+// JP: DAOクラスが所属するパッケージ宣言
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,109 +8,146 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+// VI: Import các lớp cần thiết cho JDBC và danh sách  
+// JP: JDBC処理とリスト操作に必要なクラスをインポート
 
 import bean.School;
 import bean.Student;
+// VI: Import các bean Student và School  
+// JP: Student と School のBeanクラスをインポート
 
 public class StudentDao extends Dao {
+// VI: StudentDao kế thừa lớp Dao (chứa hàm getConnection)  
+// JP: Daoクラスを継承し、DB接続メソッドを利用する
 
-    // SQL cơ bản: lọc theo school_cd
-    // 基本SQL：school_cd を条件に検索する
     private String baseSql = "select * from student where school_cd=?";
+    // VI: Câu SQL cơ bản lọc theo school_cd  
+    // JP: school_cdで絞り込む基本SQL文
 
-    // ============================
-    // 1. Lấy 1 học sinh theo mã số
-    // ============================
     public Student get(String no) throws Exception {
+    // VI: Lấy 1 sinh viên theo mã số (no)  
+    // JP: 学籍番号(no)で学生1件を取得するメソッド
 
         Student student = new Student();
-        // Tạo đối tượng Student để chứa kết quả
-        // 結果を格納する Student インスタンスを生成
+        // VI: Tạo đối tượng Student rỗng  
+        // JP: 空のStudentオブジェクトを生成
 
         Connection connection = getConnection();
-        // Lấy kết nối DB
-        // DB コネクションを取得
+        // VI: Lấy kết nối DB  
+        // JP: DB接続を取得
 
         PreparedStatement statement = null;
 
         try {
-            // SQL: tìm học sinh theo mã số
-            // SQL：学生番号で検索
             statement = connection.prepareStatement(
                 "select * from student where no=?"
             );
+            // VI: Chuẩn bị câu SQL lấy sinh viên theo no  
+            // JP: 学籍番号で学生を取得するSQLを準備
 
-            // Gán giá trị vào ?
-            // ? に値をバインド
             statement.setString(1, no);
+            // VI: Gán giá trị no vào câu SQL  
+            // JP: SQLのパラメータにnoをセット
 
             ResultSet rSet = statement.executeQuery();
+            // VI: Thực thi truy vấn  
+            // JP: クエリを実行
+
             SchoolDao schoolDao = new SchoolDao();
+            // VI: Tạo SchoolDao để lấy thông tin trường  
+            // JP: 学校情報取得のためSchoolDaoを生成
 
             if (rSet.next()) {
-                // Nếu có dữ liệu
-                // データが存在する場合
+                // VI: Nếu có dữ liệu → gán vào đối tượng student  
+                // JP: データが存在する場合、studentに値をセット
 
                 student.setNo(rSet.getString("no"));
-                student.setName(rSet.getString("name"));
-                student.setEntYear(rSet.getInt("ent_year"));
-                student.setClassNum(rSet.getString("class_num"));
-                student.setAttend(rSet.getBoolean("is_attend"));
-                student.setSchool(schoolDao.get(rSet.getString("school_cd")));
+                // JP: 学籍番号をセット
+                // VI: Gán mã số sinh viên
 
+                student.setName(rSet.getString("name"));
+                // JP: 名前をセット
+                // VI: Gán tên
+
+                student.setEntYear(rSet.getInt("ent_year"));
+                // JP: 入学年度をセット
+                // VI: Gán năm nhập học
+
+                student.setClassNum(rSet.getString("class_num"));
+                // JP: クラス番号をセット
+                // VI: Gán lớp
+
+                student.setAttend(rSet.getBoolean("is_attend"));
+                // JP: 在籍フラグをセット
+                // VI: Gán trạng thái đi học
+
+                student.setSchool(schoolDao.get(rSet.getString("school_cd")));
+                // JP: school_cdからSchool情報を取得してセット
+                // VI: Lấy thông tin trường từ school_cd
             } else {
-                // Không có dữ liệu → null
-                // データなし → null
                 student = null;
+                // JP: 見つからない場合はnull
+                // VI: Không tìm thấy → trả về null
             }
 
         } finally {
-            // Đóng statement & connection
-            // ステートメントとコネクションをクローズ
             if (statement != null) statement.close();
             if (connection != null) connection.close();
+            // VI: Đóng statement và connection  
+            // JP: ステートメントと接続をクローズ
         }
 
         return student;
+        // VI: Trả về đối tượng student  
+        // JP: studentを返す
     }
 
-    // ==========================================================
-    // 2. Hàm xử lý chung: chuyển ResultSet → List<Student>
-    // ==========================================================
     private List<Student> postFilter(ResultSet rSet, School school) throws Exception {
+    // VI: Chuyển ResultSet → List<Student>  
+    // JP: ResultSet を List<Student> に変換するメソッド
 
         List<Student> list = new ArrayList<>();
-        // Danh sách kết quả
-        // 結果リスト
 
         try {
             while (rSet.next()) {
+                // VI: Lặp qua từng dòng kết quả  
+                // JP: 結果セットを1行ずつ処理
 
                 Student student = new Student();
-                // Tạo đối tượng Student cho từng dòng
-                // 各行ごとに Student インスタンスを生成
+                // JP: 新しいStudentオブジェクトを作成
+                // VI: Tạo đối tượng Student mới
 
                 student.setNo(rSet.getString("no"));
                 student.setName(rSet.getString("name"));
                 student.setEntYear(rSet.getInt("ent_year"));
                 student.setClassNum(rSet.getString("class_num"));
                 student.setAttend(rSet.getBoolean("is_attend"));
+                // VI: Gán các thuộc tính từ DB  
+                // JP: DBの値を各フィールドにセット
+
                 student.setSchool(school);
+                // VI: Trường được truyền từ tham số  
+                // JP: Schoolは引数のschoolをそのままセット
 
                 list.add(student);
+                // VI: Thêm vào danh sách  
+                // JP: リストに追加
             }
 
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
+            // VI: In lỗi nếu có  
+            // JP: エラー発生時はスタックトレースを表示
         }
 
         return list;
+        // JP: リストを返す
+        // VI: Trả về danh sách
     }
 
-    // ==========================================================
-    // 3. Lọc theo trường + năm nhập học + lớp + trạng thái
-    // ==========================================================
     public List<Student> filter(School school, int entYear, String classNum, boolean isAttend) throws Exception {
+    // VI: Lọc theo trường, năm nhập học, lớp, trạng thái  
+    // JP: 学校・入学年度・クラス・在籍状態で絞り込み
 
         List<Student> list = new ArrayList<>();
 
@@ -118,35 +155,37 @@ public class StudentDao extends Dao {
         PreparedStatement statement = null;
         ResultSet rSet = null;
 
-        // Điều kiện lọc
-        // 検索条件
         String condition = " and ent_year=? and class_num=?";
-        String order = " order by no asc";
+        // JP: 入学年度とクラス番号の条件
+        // VI: Điều kiện lọc theo năm và lớp
 
-        // Nếu chỉ lấy học sinh đang theo học
-        // 在籍中のみ取得する場合
+        String order = " order by no asc";
+        // JP: 学籍番号昇順で並べ替え
+        // VI: Sắp xếp theo mã số tăng dần
+
         String conditionIsAttend = isAttend ? " and is_attend=true" : "";
+        // JP: 在籍のみを絞る場合の条件
+        // VI: Nếu chỉ lấy sinh viên đang học → thêm điều kiện
 
         try {
             connection = getConnection();
 
-            // Ghép SQL hoàn chỉnh
-            // 完成した SQL を作成
             statement = connection.prepareStatement(
                 baseSql + condition + conditionIsAttend + order
             );
+            // JP: SQL文を組み立てて準備
+            // VI: Ghép SQL và chuẩn bị statement
 
-            // Bind tham số
-            // パラメータをバインド
             statement.setString(1, school.getCd());
             statement.setInt(2, entYear);
             statement.setString(3, classNum);
+            // JP: パラメータをセット
+            // VI: Gán tham số vào SQL
 
             rSet = statement.executeQuery();
-
-            // Chuyển ResultSet → List<Student>
-            // ResultSet を Student リストに変換
             list = postFilter(rSet, school);
+            // JP: 結果をList<Student>に変換
+            // VI: Chuyển ResultSet thành danh sách
 
         } finally {
             if (statement != null) statement.close();
@@ -156,10 +195,9 @@ public class StudentDao extends Dao {
         return list;
     }
 
-    // ==========================================================
-    // 4. Lọc theo trường + năm nhập học
-    // ==========================================================
     public List<Student> filter(School school, int entYear, boolean isAttend) throws Exception {
+    // VI: Lọc theo trường + năm nhập học + trạng thái  
+    // JP: 学校・入学年度・在籍状態で絞り込み
 
         List<Student> list = new ArrayList<>();
 
@@ -190,10 +228,9 @@ public class StudentDao extends Dao {
         return list;
     }
 
-    // ==========================================================
-    // 5. Lọc theo trường + trạng thái
-    // ==========================================================
     public List<Student> filter(School school, boolean isAttend) throws Exception {
+    // VI: Lọc theo trường + trạng thái  
+    // JP: 学校・在籍状態で絞り込み
 
         List<Student> list = new ArrayList<>();
 
@@ -222,23 +259,23 @@ public class StudentDao extends Dao {
         return list;
     }
 
-    // ==========================================================
-    // 6. Lưu học sinh (INSERT hoặc UPDATE)
-    // ==========================================================
     public boolean save(Student student) throws Exception {
+    // VI: Lưu sinh viên (insert hoặc update)  
+    // JP: 学生情報を保存（新規 or 更新）
 
         Connection connection = getConnection();
         PreparedStatement statement = null;
         int count = 0;
 
         try {
-            // Kiểm tra xem học sinh đã tồn tại chưa
-            // 既存データの有無を確認
             Student old = get(student.getNo());
+            // JP: 既存データを取得
+            // VI: Kiểm tra xem sinh viên đã tồn tại chưa
 
             if (old == null) {
-                // INSERT
-                // 新規登録
+                // JP: 存在しない → 新規登録
+                // VI: Không tồn tại → thêm mới
+
                 statement = connection.prepareStatement(
                     "insert into student (no, name, ent_year, class_num, is_attend, school_cd) values(?, ?, ?, ?, ?, ?)"
                 );
@@ -251,8 +288,9 @@ public class StudentDao extends Dao {
                 statement.setString(6, student.getSchool().getCd());
 
             } else {
-                // UPDATE
-                // 更新処理
+                // JP: 存在する → 更新
+                // VI: Đã tồn tại → cập nhật
+
                 statement = connection.prepareStatement(
                     "update student set name=?, ent_year=?, class_num=?, is_attend=? where no=?"
                 );
@@ -265,6 +303,8 @@ public class StudentDao extends Dao {
             }
 
             count = statement.executeUpdate();
+            // JP: 実行して更新件数を取得
+            // VI: Thực thi và lấy số dòng ảnh hưởng
 
         } finally {
             if (statement != null) statement.close();
@@ -272,12 +312,16 @@ public class StudentDao extends Dao {
         }
 
         return count > 0;
+        // JP: 1件以上更新されたらtrue
+        // VI: Nếu có dòng bị ảnh hưởng → trả về true
     }
 
-    // ==========================================================
-    // 7. Lấy học sinh theo no + school_cd
-    // ==========================================================
+    // ============================
+    // ⭐ FIX CHÍNH — KHÔNG DÙNG TRIM()
+    // ============================
     public Student get(String no, School school) throws Exception {
+    // VI: Lấy sinh viên theo no + school_cd  
+    // JP: 学籍番号 + school_cd で学生を取得
 
         Student student = null;
 
@@ -286,8 +330,10 @@ public class StudentDao extends Dao {
 
         try {
             statement = connection.prepareStatement(
-                "select * from student where TRIM(no)=? and TRIM(school_cd)=?"
+                "select * from student where no=? and school_cd=?"
             );
+            // JP: no と school_cd の両方で検索
+            // VI: Tìm theo cả no và school_cd
 
             statement.setString(1, no);
             statement.setString(2, school.getCd());
@@ -296,12 +342,15 @@ public class StudentDao extends Dao {
 
             if (rSet.next()) {
                 student = new Student();
+
                 student.setNo(rSet.getString("no"));
                 student.setName(rSet.getString("name"));
                 student.setEntYear(rSet.getInt("ent_year"));
                 student.setClassNum(rSet.getString("class_num"));
                 student.setAttend(rSet.getBoolean("is_attend"));
                 student.setSchool(school);
+                // JP: schoolは引数のschoolをセット
+                // VI: Gán school từ tham số truyền vào
             }
 
         } finally {
@@ -310,6 +359,8 @@ public class StudentDao extends Dao {
         }
 
         return student;
+        // JP: 見つかった学生を返す
+        // VI: Trả về sinh viên tìm được
     }
 
 }
