@@ -1,31 +1,60 @@
 package scoremanager.main;
 
+import java.io.IOException;
+
 import bean.School;
 import bean.Teacher;
 import dao.TestDao;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class TestDeleteExecuteAction extends Action {
 
     @Override
-    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-        // 1. セッションから教員・学校情報取得
-        HttpSession session = req.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("user");
-        School school = teacher.getSchool();
+    public void execute(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
 
-        // 2. リクエストパラメータ取得
-        String studentNo = req.getParameter("studentNo");
-        String subjectCd = req.getParameter("subjectCd");
-        int no = Integer.parseInt(req.getParameter("no"));
+        try {
+            // ================================
+            // A. Lấy tham số từ URL
+            // URL ví dụ:
+            // TestDeleteExecute.action?studentNo=139&subjectCd=A01&no=1
+            // ================================
+            String studentNo = req.getParameter("studentNo");
+            String subjectCd = req.getParameter("subjectCd");
+            String noStr = req.getParameter("no");
 
-        // 3. DB削除
-        new TestDao().delete(studentNo, subjectCd, school, no);
+            int no = Integer.parseInt(noStr); // no = 回数
 
-        // 4. 一覧へリダイレクト
-        res.sendRedirect(req.getContextPath() + "/scoremanager/main/TestList.action");
+            // ================================
+            // B. Lấy school từ session
+            // ================================
+            Teacher teacher = (Teacher) req.getSession().getAttribute("user");
+            School school = teacher.getSchool();
+
+            // ================================
+            // C. Gọi DAO để xóa dữ liệu
+            // ================================
+            TestDao tDao = new TestDao();
+            boolean deleted = tDao.delete(studentNo, subjectCd, school, no);
+
+            // Nếu xóa thất bại → báo lỗi
+            if (!deleted) {
+                req.setAttribute("message", "成績情報の削除に失敗しました。");
+                req.getRequestDispatcher("/error.jsp").forward(req, res);
+                return;
+            }
+
+            // ================================
+            // D. Xóa thành công → chuyển sang màn hình 完了
+            // ================================
+            req.getRequestDispatcher("/scoremanager/main/test_delete_done.jsp").forward(req, res);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.getRequestDispatcher("/error.jsp").forward(req, res);
+        }
     }
 }

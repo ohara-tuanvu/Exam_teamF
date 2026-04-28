@@ -2,54 +2,60 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 
 <c:import url="/common/base.jsp">
-    <c:param name="title">成績削除</c:param>
-    <c:param name="scripts"></c:param>
+    <c:param name="title">成績削除確認</c:param>
+
     <c:param name="content">
 
-        <section class="w-75 m-auto border pb-3">
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">成績削除</h2>
+        <section class="w-100 pb-3">
 
-            <p class="mx-5 mt-3">以下の成績を削除しますか？</p>
+            <!-- Tiêu đề giống các màn hình khác -->
+            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">
+                成績削除確認
+            </h2>
 
-            <table class="table table-bordered mx-5 w-auto">
-                <tr>
-                    <th>学生番号</th>
-                    <td><c:out value="${test.student.no}" /></td>
-                </tr>
-                <tr>
-                    <th>学生名</th>
-                    <td><c:out value="${test.student.name}" /></td>
-                </tr>
-                <tr>
-                    <th>科目</th>
-                    <td><c:out value="${test.subject.name}" /></td>
-                </tr>
-                <tr>
-                    <th>回数</th>
-                    <td><c:out value="${test.no}" /></td>
-                </tr>
-                <tr>
-                    <th>点数</th>
-                    <td><c:out value="${test.point}" /></td>
-                </tr>
-                <tr>
-                    <th>クラス</th>
-                    <td><c:out value="${test.classNum}" /></td>
-                </tr>
+            <div class="mx-3 mb-3">
+                以下の成績を削除します。よろしいですか？
+            </div>
+
+            <!-- Bảng thông tin -->
+            <table class="table table-bordered mx-3 w-auto">
+                <tbody>
+                    <tr>
+                        <th>学生番号</th>
+                        <td>${test.student.no}</td>
+                    </tr>
+                    <tr>
+                        <th>氏名</th>
+                        <td>${test.student.name}</td>
+                    </tr>
+                    <tr>
+                        <th>科目</th>
+                        <td>${test.subject.name}</td>
+                    </tr>
+                    <tr>
+                        <th>回数</th>
+                        <td>${test.no}</td>
+                    </tr>
+                    <tr>
+                        <th>点数</th>
+                        <td>${test.point}</td>
+                    </tr>
+                </tbody>
             </table>
 
-            <form action="TestDeleteExecute.action" method="post">
-                <input type="hidden" name="studentNo" value="<c:out value='${test.student.no}'/>" />
-                <input type="hidden" name="subjectCd" value="<c:out value='${test.subject.cd}'/>" />
-                <input type="hidden" name="no"        value="<c:out value='${test.no}'/>" />
+            <!-- Nút thao tác -->
+            <div class="mx-3 mt-3 d-flex gap-3">
 
-                <div class="mt-4 text-center">
-                    <input class="btn btn-danger w-25" type="submit" value="削除する" />
-                </div>
-                <div class="mt-3 text-center">
-                    <a href="TestList.action">戻る</a>
-                </div>
-            </form>
+                <!-- Nút xóa -->
+                <a class="btn btn-danger"
+                   href="TestDeleteExecute.action?studentNo=${test.student.no}&subjectCd=${test.subject.cd}&no=${test.no}">
+                    削除する
+                </a>
+
+                <!-- Nút quay lại -->
+                <a class="btn btn-secondary" href="TestRegist.action">戻る</a>
+            </div>
+
         </section>
 
     </c:param>
