@@ -73,7 +73,7 @@ public class TestListAction extends Action {
                 req.setAttribute("errorSt", "学生番号を入力してください");
             } else {
                 dao.StudentDao studentDao = new dao.StudentDao();
-                bean.Student student = studentDao.get(f4.trim(), school);
+                bean.Student student = studentDao.get(f4.trim());
                 if (student == null) {
                     req.setAttribute("f4", f4);
                     req.setAttribute("errorSt", "学生情報が存在しませんでした");

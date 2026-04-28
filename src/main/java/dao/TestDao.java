@@ -18,20 +18,27 @@ public class TestDao extends Dao {
     private Test mapRow(ResultSet rSet, School school) throws Exception {
         Test test = new Test();
 
+        String studentNo = rSet.getString("student_no");
+        String subjectCd = rSet.getString("subject_cd");
+        int no = rSet.getInt("no");
+        int point = rSet.getInt("point");
+        String classNum = rSet.getString("class_num");
+
+
         // 学生情報を取得
         StudentDao studentDao = new StudentDao();
-        Student student = studentDao.get(rSet.getString("student_no"), school);
-        test.setStudent(student);
+        Student student = studentDao.get(studentNo);
 
         // 科目情報を取得
         SubjectDao subjectDao = new SubjectDao();
-        Subject subject = subjectDao.get(rSet.getString("subject_cd"), school);
-        test.setSubject(subject);
+        Subject subject = subjectDao.get(subjectCd, school);
 
+        test.setStudent(student);
+        test.setSubject(subject);
         test.setSchool(school);
-        test.setNo(rSet.getInt("no"));
-        test.setPoint(rSet.getInt("point"));
-        test.setClassNum(rSet.getString("class_num"));
+        test.setNo(no);
+        test.setPoint(point);
+        test.setClassNum(classNum);
 
         return test;
     }
@@ -45,7 +52,7 @@ public class TestDao extends Dao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(
-                "SELECT * FROM TEST WHERE SCHOOL_CD = ? ORDER BY STUDENT_NO, SUBJECT_CD, NO ASC"
+                "SELECT * FROM TEST WHERE TRIM(SCHOOL_CD) = ? ORDER BY STUDENT_NO, SUBJECT_CD, NO ASC"
             );
             statement.setString(1, school.getCd());
             ResultSet rSet = statement.executeQuery();
@@ -68,7 +75,7 @@ public class TestDao extends Dao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(
-                "SELECT * FROM TEST WHERE SCHOOL_CD = ? AND SUBJECT_CD = ? ORDER BY STUDENT_NO, NO ASC"
+                "SELECT * FROM TEST WHERE TRIM(SCHOOL_CD) = ? AND TRIM(SUBJECT_CD) = ? ORDER BY STUDENT_NO, NO ASC"
             );
             statement.setString(1, school.getCd());
             statement.setString(2, subjectCd);
@@ -91,13 +98,14 @@ public class TestDao extends Dao {
 
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(
-                "SELECT * FROM TEST WHERE SCHOOL_CD = ? AND STUDENT_NO = ? ORDER BY SUBJECT_CD, NO ASC"
-            );
-            statement.setString(1, school.getCd());
-            statement.setString(2, studentNo);
+            String sql = "SELECT * FROM TEST WHERE TRIM(SCHOOL_CD) = ? AND TRIM(STUDENT_NO) = ? ORDER BY SUBJECT_CD, NO ASC";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, school.getCd().trim());
+            statement.setString(2, studentNo.trim());
             ResultSet rSet = statement.executeQuery();
+            int count = 0;
             while (rSet.next()) {
+                count++;
                 list.add(mapRow(rSet, school));
             }
         } finally {
