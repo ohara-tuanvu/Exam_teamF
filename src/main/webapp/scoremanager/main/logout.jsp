@@ -10,30 +10,60 @@
         得点管理システム
     </c:param>
 
-    <c:param name="content"> <%-- ページのメインコンテンツ（Nội dung chính của trang logout） --%>
+    <c:param name="content">
 
-        <div id="wrap_box"> <%-- 全体レイアウト枠（Khung bao toàn bộ nội dung） --%>
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
 
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2">
-                ログアウト
-            </h2>
-            <%-- 画面タイトル表示（Hiển thị tiêu đề logout） --%>
+        <div class="card border-0 shadow-sm p-4 text-center" style="min-width: 320px; max-width: 400px;">
 
-            <div id="wrap_box"> <%-- メッセージ表示エリア（Khung hiển thị thông báo） --%>
+            <!-- Title -->
+            <h2 class="h4 mb-3">ログアウト</h2>
 
-                <p class="text-center" style="background-color:#66CC99">
-                    ログアウトしました
-                </p>
-                <%-- ログアウト完了メッセージ（Thông báo đăng xuất thành công） --%>
-
-                <a href="${pageContext.request.contextPath}/scoremanager/main/login.jsp">
-                    ログイン
-                </a>
-                <%-- ログイン画面へ遷移（Chuyển về trang login） --%>
-                <%-- contextPathを使ってプロジェクト名に依存しないURLを生成（Tạo URL không phụ thuộc tên project） --%>
-
+            <!-- Success message -->
+            <div class="alert alert-success mb-4">
+            ✅ ログアウトしました
             </div>
-        </div>
 
-    </c:param>
+            <!-- Login button -->
+            <a class="btn btn-primary w-100"
+            href="javascript:void(0);"
+            onclick="fadeOutAndRedirect('${pageContext.request.contextPath}/scoremanager/main/login.jsp')">
+            ログイン画面へ
+            </a>
+
+        </div>
+    </div>
+
+</c:param>
+	<c:param name="scripts">
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        body.fade-in {
+            opacity: 1;
+        }
+        body.fade-out {
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        // Fade IN when page loads
+        window.addEventListener("load", function () {
+            document.body.classList.add("fade-in");
+        });
+
+        // Fade OUT then redirect
+        function fadeOutAndRedirect(url) {
+            document.body.classList.remove("fade-in");
+            document.body.classList.add("fade-out");
+
+            setTimeout(function () {
+                window.location.href = url;
+            }, 400);
+        }
+    </script>
+</c:param>	
 </c:import>

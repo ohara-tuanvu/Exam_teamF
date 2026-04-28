@@ -137,9 +137,9 @@
                                     <!-- ★ 削除リンク（点数が存在する場合のみ表示） -->
                                     <td>
                                         <c:if test="${not empty pointMap[student.no]}">
-                                            <a href="TestDelete.action?studentNo=${student.no}&subjectCd=${f3}&no=${f4}">
-                                                削除
-                                            </a>
+                                        <a class="btn btn-danger btn-sm" href="TestDelete.action?studentNo=${student.no}&subjectCd=${f3}&no=${f4}">
+                                        削除
+                                        </a>
                                         </c:if>
                                     </td>
 

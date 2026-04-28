@@ -84,13 +84,6 @@
                 </c:otherwise>
 
             </c:choose>
-
-            <!-- 戻るリンク -->
-            <div class="mt-3">
-                <a href="Menu.action">戻る</a>
-            </div>
-            <%-- メニュー画面へ戻る（Quay lại menu） --%>
-
         </section>
 
     </c:param>

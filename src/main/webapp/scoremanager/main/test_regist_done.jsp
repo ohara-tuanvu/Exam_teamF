@@ -12,9 +12,12 @@
             <div class="alert alert-success mx-3">登録が完了しました</div>
 
             <div class="mx-3 mt-3">
-                <a href="TestRegist.action">戻る</a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="TestList.action">成績参照</a>
+            <a class="btn btn-secondary"
+            href="javascript:history.back()">
+            戻る
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            <a class="btn btn-primary" href="TestList.action">成績参照</a>
             </div>
         </section>
 

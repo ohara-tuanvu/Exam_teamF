@@ -24,7 +24,7 @@
             <%-- 画面タイトル（Tiêu đề trang） --%>
 
             <div class="my-2 text-end px-4">
-                <a href="StudentCreate.action">新規登録</a>
+                <a a class="btn btn-primary href="StudentCreate.action">新規登録</a>
                 <%-- 学生新規登録画面へ遷移（Link tạo mới sinh viên） --%>
             </div>
 
@@ -136,7 +136,7 @@
                                 </td>
 
                                 <td>
-                                    <a href="StudentUpdate.action?no=${student.no}">変更</a>
+                                    <a a class="btn btn-primary" href="StudentUpdate.action?no=${student.no}">変更</a>
                                     <%-- 学生更新画面へ遷移（Link sửa thông tin sinh viên） --%>
                                 </td>
 

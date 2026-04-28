@@ -6,8 +6,13 @@
 	<h1 class="fs-1">得点管理システム</h1>
 </div>
 <c:if test="${user.isAuthenticated()}">
-	<div class="nav align-self-end">
-		<span class="nav-item px-2">${user.getName()}様</span>
-		<a class="nav-item px-2" href="Logout.action">ログアウト</a>
-	</div>
+	<div class="nav align-self-end d-flex align-items-center gap-2">
+    <span class="nav-item px-2">${user.getName()}様</span>
+
+    <a class="btn btn-outline-danger btn-sm"
+       href="Logout.action"
+       onclick="return confirm('ログアウトしますか？');">
+       ログアウト
+    </a>
+</div>
 </c:if>
