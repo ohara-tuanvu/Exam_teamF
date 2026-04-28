@@ -53,7 +53,7 @@
                 </a>
 
                 <!-- Nút quay lại -->
-                <a class="btn btn-secondary" href="TestRegist.action">戻る</a>
+                <a class="btn btn-secondary" href="javascript:history.back()">戻る</a>
             </div>
 
         </section>
