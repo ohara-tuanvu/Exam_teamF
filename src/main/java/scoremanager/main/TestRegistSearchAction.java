@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
-public class TestRegistAction extends Action {
+public class TestRegistSearchAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -24,10 +24,14 @@ public class TestRegistAction extends Action {
         Teacher teacher = (Teacher) session.getAttribute("user");
         School school = teacher.getSchool();
 
-        // プルダウン用データ
+        String f1 = req.getParameter("f1"); // 入学年度
+        String f2 = req.getParameter("f2"); // クラス
+        String f3 = req.getParameter("f3"); // 科目CD
+        String f4 = req.getParameter("f4"); // 回数
+
+        // プルダウン再セット
         List<String> classNumList = new ClassNumDao().filter(school);
         List<Subject> subjectList = new SubjectDao().filter(school);
-
         int currentYear = LocalDate.now().getYear();
         List<Integer> entYearList = new ArrayList<>();
         for (int i = currentYear; i >= currentYear - 5; i--) entYearList.add(i);
@@ -38,20 +42,13 @@ public class TestRegistAction extends Action {
         req.setAttribute("subjectList", subjectList);
         req.setAttribute("entYearList", entYearList);
         req.setAttribute("noList", noList);
-
-        // 検索条件が指定されている場合は学生一覧を取得
-        String f1 = req.getParameter("f1");
-        String f2 = req.getParameter("f2");
-        String f3 = req.getParameter("f3");
-        String f4 = req.getParameter("f4");
-
         req.setAttribute("f1", f1);
         req.setAttribute("f2", f2);
         req.setAttribute("f3", f3);
         req.setAttribute("f4", f4);
 
-        if (f1 != null && !f1.isEmpty() && f2 != null && !f2.isEmpty()
-                && f3 != null && !f3.isEmpty() && f4 != null && !f4.isEmpty()) {
+        // 学生一覧取得
+        if (f1 != null && !f1.isEmpty() && f2 != null && !f2.isEmpty()) {
             int entYear = Integer.parseInt(f1);
             List<Student> studentList = new StudentDao().filter(school, entYear, f2, true);
             req.setAttribute("studentList", studentList);

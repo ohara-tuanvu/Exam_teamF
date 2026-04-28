@@ -1,238 +1,107 @@
 package scoremanager.main;
-// VI: Package chứa Action xử lý đăng ký điểm  
-// JP: 成績登録処理を行うActionクラスのパッケージ
 
-import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import bean.School;
 import bean.Student;
 import bean.Subject;
+import bean.Teacher;
 import bean.Test;
+import dao.ClassNumDao;
 import dao.StudentDao;
 import dao.SubjectDao;
 import dao.TestDao;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class TestRegistExecuteAction extends Action {
 
     @Override
-    public void execute(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException {
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+        // 1. セッションから教員・学校情報取得
+        HttpSession session = req.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+        School school = teacher.getSchool();
 
-        try {
-            // VI: Lấy thông tin trường từ session  
-            // JP: セッションから学校情報を取得
-            School school = (School) req.getSession().getAttribute("school");
+        // 2. リクエストパラメータ取得
+        String entYearStr = req.getParameter("f1");
+        String classNum   = req.getParameter("f2");
+        String subjectCd  = req.getParameter("f3");
+        String noStr      = req.getParameter("f4");
 
-            // VI: Lấy mã môn học và số lần kiểm tra  
-            // JP: 科目コードと回数を取得
-            String subjectCd = req.getParameter("subject_cd");
-            String noStr = req.getParameter("no");
+        // 3. 検索条件で対象学生リストを取得
+        int entYear = Integer.parseInt(entYearStr);
+        int no = Integer.parseInt(noStr);
 
-            SubjectDao subDao = new SubjectDao();
-            Subject subject = subDao.get(subjectCd, school);
-            // VI: Lấy đối tượng môn học  
-            // JP: 科目情報を取得
+        StudentDao studentDao = new StudentDao();
+        List<Student> studentList = studentDao.filter(school, entYear, classNum, true);
 
-            int no = Integer.parseInt(noStr);
-            // VI: Chuyển số lần kiểm tra sang int  
-            // JP: 回数を整数に変換
+        TestDao testDao = new TestDao();
+        SubjectDao subjectDao = new SubjectDao();
+        Subject subject = subjectDao.get(subjectCd, school);
 
-            TestDao tDao = new TestDao();
-            StudentDao sDao = new StudentDao();
+        // 4. 各学生の点数を保存
+        List<String> errors = new ArrayList<>();
+        for (Student student : studentList) {
+            String pointStr = req.getParameter("point_" + student.getNo());
+            if (pointStr == null || pointStr.trim().isEmpty()) continue;
 
-            List<Test> testList = new ArrayList<>();
-
-            int errorIndex = -1;
-            String errorMessage = null;
-
-            // ⭐ Danh sách lỗi để hiển thị nhiều lỗi  
-            // JP: JSPで複数エラーを表示するためのリスト
-            List<String> errorList = new ArrayList<>();
-
-            // ============================
-            // 1. ループで学生ごとの点数を処理
-            // ============================
-            // VI: Lặp qua từng student_no_xxx trong form  
-            // JP: フォーム内の student_no_xxx を順番に処理
-            int index = 0;
-
-            for (String param : req.getParameterMap().keySet()) {
-
-                if (param.startsWith("student_no_")) {
-
-                    String studentNo = req.getParameter(param);
-                    String pointStr = req.getParameter("point_" + studentNo);
-
-                    // ----------------------------
-                    // Student取得（null対策追加）
-                    // ----------------------------
-                    // VI: Lấy thông tin sinh viên theo mã  
-                    // JP: 学生番号からStudentを取得（null対策あり）
-                    Student stu = null;
-                    try {
-                        stu = sDao.get(studentNo, school);
-                    } catch (Exception e) {
-                        throw new ServletException(e);
-                    }
-
-                    if (stu == null) {
-                        // VI: Nếu không tìm thấy sinh viên → lỗi  
-                        // JP: 学生が存在しない場合はエラー
-                        throw new ServletException("Student not found: " + studentNo);
-                    }
-
-                    // ----------------------------
-                    // 点数バリデーション
-                    // ----------------------------
-                    // VI: Kiểm tra hợp lệ của điểm  
-                    // JP: 点数のバリデーション
-                    int point = 0;
-
-                    if (pointStr == null || pointStr.isEmpty()) {
-                        errorIndex = index;
-                        errorMessage = "点数を入力してください"; // VI: Hãy nhập điểm
-                        errorList.add(errorMessage);
-                        break;
-                    }
-
-                    if (!pointStr.matches("^[0-9]{1,3}$")) {
-                        errorIndex = index;
-                        errorMessage = "0～100の範囲で入力してください"; // VI: Nhập từ 0–100
-                        errorList.add(errorMessage);
-                        break;
-                    }
-
-                    point = Integer.parseInt(pointStr);
-
-                    if (point < 0 || point > 100) {
-                        errorIndex = index;
-                        errorMessage = "0～100の範囲で入力してください";
-                        errorList.add(errorMessage);
-                        break;
-                    }
-
-                    // ----------------------------
-                    // Testオブジェクト作成
-                    // ----------------------------
-                    // VI: Tạo đối tượng Test để lưu vào DB  
-                    // JP: DB登録用のTestオブジェクトを作成
-                    Test t = new Test();
-                    t.setStudent(stu);
-                    t.setSubject(subject);
-                    t.setNo(no);
-                    t.setPoint(point);
-                    t.setClassNum(stu.getClassNum());
-
-                    // ⭐ BẮT BUỘC: thêm school vào Test  
-                    // JP: 必須：Testにschoolをセット
-                    t.setSchool(school);
-
-                    testList.add(t);
-                    index++;
-                }
-            }
-
-            // ============================
-            // 2. エラーがあれば再表示
-            // ============================
-            // VI: Nếu có lỗi → quay lại trang nhập  
-            // JP: エラーがある場合は入力画面に戻す
-            if (errorIndex != -1) {
-
-                List<Test> rebuildList = rebuildList(req, school, subject, no);
-                // VI: Tạo lại danh sách Test để hiển thị lại  
-                // JP: 再表示用にTestリストを再構築
-
-                req.setAttribute("testList", rebuildList);
-                req.setAttribute("errorIndex", errorIndex);
-                req.setAttribute("errorMessage", errorMessage);
-
-                // ⭐ Gửi danh sách lỗi sang JSP  
-                // JP: エラーリストをJSPへ渡す
-                req.setAttribute("errorList", errorList);
-
-                req.setAttribute("subject_name", subject.getName());
-
-                req.getRequestDispatcher("/scoremanager/main/test_regist.jsp")
-                        .forward(req, res);
-                return;
-            }
-
-            // ============================
-            // 3. DB登録
-            // ============================
-            // VI: Lưu toàn bộ danh sách điểm vào DB  
-            // JP: 成績リストをDBへ登録
-            tDao.save(testList, school);
-
-            // ============================
-            // 4. 完了画面へ
-            // ============================
-            // VI: Chuyển sang trang hoàn tất  
-            // JP: 完了画面へフォワード
-            req.getRequestDispatcher("/scoremanager/main/test_regist_done.jsp")
-                    .forward(req, res);
-
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
-    }
-
-    // ==========================================================
-    // 入力エラー時の再表示用リスト再構築（null対策追加）
-    // ==========================================================
-    // VI: Hàm tạo lại danh sách Test khi có lỗi nhập liệu  
-    // JP: 入力エラー時に再表示するためのTestリストを再構築
-    private List<Test> rebuildList(HttpServletRequest req, School school, Subject subject, int no)
-            throws Exception {
-
-        StudentDao sDao = new StudentDao();
-        List<Test> list = new ArrayList<>();
-
-        for (String param : req.getParameterMap().keySet()) {
-
-            if (param.startsWith("student_no_")) {
-
-                String stuNo = req.getParameter(param);
-                String pointStr = req.getParameter("point_" + stuNo);
-
-                Student stu = null;
-                try {
-                    stu = sDao.get(stuNo, school);
-                } catch (Exception e) {
+            int point;
+            try {
+                point = Integer.parseInt(pointStr.trim());
+                if (point < 0 || point > 100) {
+                    errors.add(student.getName() + "の点数は0〜100で入力してください");
                     continue;
                 }
+            } catch (NumberFormatException e) {
+                errors.add(student.getName() + "の点数は数字で入力してください");
+                continue;
+            }
 
-                if (stu == null) {
-                    continue;
-                }
+            // 既存チェック → あればupdate、なければinsert
+            Test existing = testDao.get(student.getNo(), subjectCd, school, no);
+            Test test = new Test();
+            test.setStudent(student);
+            test.setSubject(subject);
+            test.setSchool(school);
+            test.setNo(no);
+            test.setPoint(point);
+            test.setClassNum(classNum);
 
-                Test t = new Test();
-                t.setStudent(stu);
-                t.setSubject(subject);
-                t.setNo(no);
-                t.setClassNum(stu.getClassNum());
-
-                // ⭐ BẮT BUỘC: thêm school vào Test  
-                // JP: 必須：Testにschoolをセット
-                t.setSchool(school);
-
-                if (pointStr != null && pointStr.matches("^[0-9]{1,3}$")) {
-                    t.setPoint(Integer.parseInt(pointStr));
-                } else {
-                    t.setPoint(0);
-                }
-
-                list.add(t);
+            if (existing != null) {
+                testDao.update(test);
+            } else {
+                testDao.insert(test);
             }
         }
 
-        return list;
+        if (!errors.isEmpty()) {
+            // エラーがある場合は登録画面へ戻る
+            int currentYear = LocalDate.now().getYear();
+            List<Integer> entYearList = new ArrayList<>();
+            for (int i = currentYear; i >= currentYear - 5; i--) entYearList.add(i);
+            List<Integer> noList = new ArrayList<>();
+            for (int i = 1; i <= 5; i++) noList.add(i);
+
+            req.setAttribute("errors", errors);
+            req.setAttribute("classNumList", new ClassNumDao().filter(school));
+            req.setAttribute("subjectList", subjectDao.filter(school));
+            req.setAttribute("entYearList", entYearList);
+            req.setAttribute("noList", noList);
+            req.setAttribute("studentList", studentList);
+            req.setAttribute("f1", entYearStr);
+            req.setAttribute("f2", classNum);
+            req.setAttribute("f3", subjectCd);
+            req.setAttribute("f4", noStr);
+            req.getRequestDispatcher("test_regist.jsp").forward(req, res);
+            return;
+        }
+
+        // 5. 完了画面へフォワード
+        req.getRequestDispatcher("test_regist_done.jsp").forward(req, res);
     }
 }
