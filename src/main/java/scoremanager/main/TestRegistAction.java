@@ -30,9 +30,9 @@ public class TestRegistAction extends Action {
 
         int currentYear = LocalDate.now().getYear();
         List<Integer> entYearList = new ArrayList<>();
-        for (int i = currentYear; i >= currentYear - 5; i--) entYearList.add(i);
+        for (int i = currentYear; i >= currentYear - 10; i--) entYearList.add(i);
         List<Integer> noList = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) noList.add(i);
+        for (int i = 1; i <= 10; i++) noList.add(i);
 
         req.setAttribute("classNumList", classNumList);
         req.setAttribute("subjectList", subjectList);
