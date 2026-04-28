@@ -3,7 +3,28 @@
 
 <c:import url="/common/base.jsp">
     <c:param name="title">成績登録</c:param>
-    <c:param name="scripts"></c:param>
+    <c:param name="scripts">
+        <script>
+            function checkPoint(input) {
+                var val = parseInt(input.value);
+                var msg = input.nextElementSibling;
+                if (input.value !== '' && (isNaN(val) || val < 0 || val > 100)) {
+                    msg.style.display = 'block';
+                } else {
+                    msg.style.display = 'none';
+                }
+            }
+        </script>
+        <style>
+            /* 数字入力の矢印を非表示 */
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            input[type=number] { -moz-appearance: textfield; }
+        </style>
+    </c:param>
     <c:param name="content">
 
         <section class="w-100 pb-3">
@@ -48,7 +69,7 @@
                         </select>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-secondary">検索</button>
+                        <button type="submit" class="btn btn-primary">検索</button>
                     </div>
                 </div>
             </form>
@@ -57,6 +78,12 @@
                 <c:forEach var="err" items="${errors}">
                     <div class="text-danger mx-3">${err}</div>
                 </c:forEach>
+            </c:if>
+
+            <c:if test="${not empty searchError}">
+                <div style="background-color:#fdf8e1; border:1px solid #e6d87a; border-radius:6px; padding:12px 20px; color:#7a6a00; margin: 0 12px;">
+                    ${searchError}
+                </div>
             </c:if>
 
             <c:if test="${not empty studentList}">
@@ -89,9 +116,10 @@
                                     <td>${student.name}</td>
                                     <td>
                                         <input type="number" class="form-control" style="width:100px;"
-                                               name="point_${student.no}" min="0" max="100"
-                                               value="${pointMap[student.no]}" />
-                                        <div class="text-warning small">0〜100の範囲で入力してください</div>
+                                               name="point_${student.no}"
+                                               value="${pointMap[student.no]}"
+                                               oninput="checkPoint(this)" />
+                                        <div class="text-warning small point-error" style="display:none;">0〜100の範囲で入力してください</div>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -99,7 +127,7 @@
                     </table>
 
                     <div class="mx-3">
-                        <button type="submit" class="btn btn-secondary">登録して終了</button>
+                        <button type="submit" class="btn btn-primary">登録して終了</button>
                     </div>
                 </form>
             </c:if>

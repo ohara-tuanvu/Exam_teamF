@@ -8,9 +8,11 @@ import bean.School;
 import bean.Student;
 import bean.Subject;
 import bean.Teacher;
+import bean.Test;
 import dao.ClassNumDao;
 import dao.StudentDao;
 import dao.SubjectDao;
+import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -53,8 +55,23 @@ public class TestRegistAction extends Action {
         if (f1 != null && !f1.isEmpty() && f2 != null && !f2.isEmpty()
                 && f3 != null && !f3.isEmpty() && f4 != null && !f4.isEmpty()) {
             int entYear = Integer.parseInt(f1);
+            int no = Integer.parseInt(f4);
             List<Student> studentList = new StudentDao().filter(school, entYear, f2, true);
-            req.setAttribute("studentList", studentList);
+            if (studentList.isEmpty()) {
+                req.setAttribute("searchError", "該当する学生情報が存在しませんでした");
+            } else {
+                req.setAttribute("studentList", studentList);
+                // 既存の点数をMapにセット（学生番号 → 点数）
+                TestDao testDao = new TestDao();
+                java.util.Map<String, Integer> pointMap = new java.util.HashMap<>();
+                for (Student s : studentList) {
+                    Test existing = testDao.get(s.getNo(), f3, school, no);
+                    if (existing != null) {
+                        pointMap.put(s.getNo(), existing.getPoint());
+                    }
+                }
+                req.setAttribute("pointMap", pointMap);
+            }
         }
 
         req.getRequestDispatcher("test_regist.jsp").forward(req, res);

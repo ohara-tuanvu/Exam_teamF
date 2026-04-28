@@ -57,7 +57,7 @@
                             </select>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-secondary">検索</button>
+                            <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
                     <c:if test="${not empty errorSj}">
@@ -76,10 +76,10 @@
                             <label class="form-label">学生番号</label>
                             <input type="text" class="form-control" name="f4"
                                    maxlength="10" placeholder="学生番号を入力してください"
-                                   value="${searchType == 'st' ? f4 : ''}" required />
+                                   value="${searchType == 'st' ? f4 : ''}" />
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-secondary">検索</button>
+                            <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
                     <c:if test="${not empty errorSt}">

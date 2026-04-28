@@ -54,7 +54,7 @@ public class TestRegistExecuteAction extends Action {
             try {
                 point = Integer.parseInt(pointStr.trim());
                 if (point < 0 || point > 100) {
-                    errors.add(student.getName() + "の点数は0〜100で入力してください");
+                    errors.add(student.getName() + "の点数は0〜100の範囲で入力してください");
                     continue;
                 }
             } catch (NumberFormatException e) {
