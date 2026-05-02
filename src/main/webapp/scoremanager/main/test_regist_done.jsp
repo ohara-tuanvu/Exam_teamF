@@ -41,9 +41,12 @@
 
             <!-- ⭐ GIỮ NGUYÊN 100% NHƯ BẠN YÊU CẦU -->
             <div class="mx-3 mt-3">
-                <a href="TestRegist.action">戻る</a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="TestList.action">成績参照</a>
+            <a class="btn btn-secondary"
+            href="javascript:history.back()">
+            戻る
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            <a class="btn btn-primary" href="TestList.action">成績参照</a>
             </div>
 
         </section>
