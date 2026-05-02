@@ -7,6 +7,32 @@
 
     <c:param name="content">
 
+        <!-- ⭐ CSS làm card + bảng + header nổi rõ nhưng vẫn thấy background -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Card glass */
+            .glass-card {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Bảng thông tin mờ nhẹ */
+            table.table-bordered tr th,
+            table.table-bordered tr td {
+                background: rgba(255,255,255,0.75);
+                backdrop-filter: blur(4px);
+            }
+        </style>
+
         <section class="me-4">
 
             <!-- タイトル -->
@@ -16,7 +42,7 @@
 
             <div class="mt-4 px-4 d-flex justify-content-center">
 
-                <div class="card shadow-sm border-0" style="max-width: 650px; width: 100%;">
+                <div class="card shadow-sm border-0 glass-card" style="max-width: 650px; width: 100%;">
                     <div class="card-body py-5">
 
                         <!-- =============================== -->

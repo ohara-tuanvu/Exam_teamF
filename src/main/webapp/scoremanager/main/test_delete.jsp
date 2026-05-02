@@ -6,14 +6,53 @@
 
     <c:param name="content">
 
+        <!-- ⭐ CSS glass cho bảng + header + message -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Thông báo xác nhận */
+            .glass-msg {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 8px;
+                padding: 12px 18px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Header bảng */
+            table.table thead tr th,
+            table.table tbody tr th {
+                background: rgba(255,255,255,0.75);
+                backdrop-filter: blur(4px);
+            }
+
+            /* Từng dòng bảng */
+            table.table tbody tr td {
+                background: rgba(255,255,255,0.60);
+                backdrop-filter: blur(4px);
+            }
+
+            /* Hover */
+            table.table tbody tr:hover td {
+                background: rgba(240,247,255,0.85);
+            }
+        </style>
+
         <section class="w-100 pb-3">
 
-            <!-- Tiêu đề giống các màn hình khác -->
+            <!-- Tiêu đề -->
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">
                 成績削除確認
             </h2>
 
-            <div class="mx-3 mb-3">
+            <!-- ⭐ Thông báo xác nhận -->
+            <div class="mx-3 mb-3 glass-msg">
                 以下の成績を削除します。よろしいですか？
             </div>
 

@@ -4,31 +4,72 @@
 <c:import url="/common/base.jsp">
     <c:param name="title">成績参照</c:param>
     <c:param name="scripts"></c:param>
+
     <c:param name="content">
+
+        <!-- ⭐ CSS glass cho toàn màn hình -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Khối form tìm kiếm */
+            .glass-filter {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                padding: 18px 20px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Header bảng */
+            table.table thead tr th {
+                background: rgba(255,255,255,0.75);
+                backdrop-filter: blur(4px);
+                border-bottom: 2px solid #dcdcdc;
+            }
+
+            /* Từng dòng bảng */
+            table.table tbody tr td {
+                background: rgba(255,255,255,0.60);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            /* Hover */
+            table.table tbody tr:hover td {
+                background: rgba(240,247,255,0.85);
+            }
+        </style>
 
         <section class="w-100 pb-3">
 
-            <%-- 科目別検索結果か学生別検索結果かでタイトル切り替え --%>
+            <!-- ⭐ Tiêu đề động -->
             <c:choose>
                 <c:when test="${searchType == 'sj' && not empty testList}">
-                    <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">成績一覧（科目）</h2>
+                    <h2 class="h3 mb-3 fw-normal py-2 px-3">成績一覧（科目）</h2>
                 </c:when>
                 <c:when test="${searchType == 'st' && not empty testList}">
-                    <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">成績一覧（学生）</h2>
+                    <h2 class="h3 mb-3 fw-normal py-2 px-3">成績一覧（学生）</h2>
                 </c:when>
                 <c:otherwise>
-                    <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">成績参照</h2>
+                    <h2 class="h3 mb-3 fw-normal py-2 px-3">成績参照</h2>
                 </c:otherwise>
             </c:choose>
 
-            <%-- 検索フォーム --%>
-            <div class="border rounded p-3 mx-3 mb-3">
+            <!-- ⭐ Khối form tìm kiếm glass -->
+            <div class="glass-filter mx-3 mb-3">
 
-                <%-- 科目情報検索 --%>
+                <!-- 科目検索 -->
                 <form action="TestList.action" method="get">
                     <input type="hidden" name="f" value="sj" />
                     <div class="d-flex align-items-end gap-3 mb-2">
                         <div style="width:80px;"><label class="form-label fw-bold">科目情報</label></div>
+
                         <div>
                             <label class="form-label">入学年度</label>
                             <select class="form-select" name="f1">
@@ -38,6 +79,7 @@
                                 </c:forEach>
                             </select>
                         </div>
+
                         <div>
                             <label class="form-label">クラス</label>
                             <select class="form-select" name="f2">
@@ -47,6 +89,7 @@
                                 </c:forEach>
                             </select>
                         </div>
+
                         <div>
                             <label class="form-label">科目</label>
                             <select class="form-select" name="f3">
@@ -56,10 +99,12 @@
                                 </c:forEach>
                             </select>
                         </div>
+
                         <div>
                             <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
+
                     <c:if test="${not empty errorSj}">
                         <div class="text-danger">${errorSj}</div>
                     </c:if>
@@ -67,41 +112,47 @@
 
                 <hr/>
 
-                <%-- 学生情報検索 --%>
+                <!-- 学生検索 -->
                 <form action="TestList.action" method="get">
                     <input type="hidden" name="f" value="st" />
                     <div class="d-flex align-items-end gap-3">
                         <div style="width:80px;"><label class="form-label fw-bold">学生情報</label></div>
+
                         <div>
                             <label class="form-label">学生番号</label>
                             <input type="text" class="form-control" name="f4"
                                    maxlength="10" placeholder="学生番号を入力してください"
                                    value="${searchType == 'st' ? f4 : ''}" />
                         </div>
+
                         <div>
                             <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
+
                     <c:if test="${not empty errorSt}">
                         <div class="text-danger">${errorSt}</div>
                     </c:if>
                 </form>
 
-                <%-- hidden fields --%>
-                <input type="hidden" name="f" value="${searchType}" />
-
             </div>
 
-            <%-- 案内メッセージ --%>
+            <!-- ⭐ Hướng dẫn -->
             <c:if test="${empty testList && empty errorSj && empty errorSt}">
-                <div class="text-primary mx-3">科目情報を選択または学生情報を入力して検索ボタンをクリックしてください</div>
+                <div class="text-primary mx-3">
+                    科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
+                </div>
             </c:if>
 
-            <%-- 科目別結果テーブル --%>
+            <!-- ⭐ 科目別結果 -->
             <c:if test="${searchType == 'sj' && not empty testList}">
                 <div class="mx-3 mb-2">
-                    科目：<c:forEach var="s" items="${subjectList}"><c:if test="${s.cd == f3}">${s.name}</c:if></c:forEach>
+                    科目：
+                    <c:forEach var="s" items="${subjectList}">
+                        <c:if test="${s.cd == f3}">${s.name}</c:if>
+                    </c:forEach>
                 </div>
+
                 <table class="table table-bordered mx-3 w-auto">
                     <thead class="table-light">
                         <tr>
@@ -114,7 +165,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%-- 学生ごとにグループ化して表示 --%>
                         <c:forEach var="test" items="${testList}">
                             <c:if test="${test.no == 1}">
                                 <tr>
@@ -131,11 +181,12 @@
                 </table>
             </c:if>
 
-            <%-- 学生別結果テーブル --%>
+            <!-- ⭐ 学生別結果 -->
             <c:if test="${searchType == 'st' && not empty testList}">
                 <div class="mx-3 mb-2">
                     氏名：${student.name}（${student.no}）
                 </div>
+
                 <table class="table table-bordered mx-3 w-auto">
                     <thead class="table-light">
                         <tr>

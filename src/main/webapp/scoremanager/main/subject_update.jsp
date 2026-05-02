@@ -6,6 +6,41 @@
 
     <c:param name="content">
 
+        <!-- ⭐ CSS làm card + form nổi rõ nhưng vẫn thấy background -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Card glass (message) */
+            .glass-card {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Form glass */
+            .glass-block {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                padding: 25px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Input rõ hơn */
+            .form-control, .form-select {
+                background: rgba(255,255,255,0.85);
+                border: 1px solid #ccc;
+            }
+        </style>
+
         <section class="me-4">
 
             <!-- タイトル -->
@@ -18,7 +53,7 @@
             <!-- =============================== -->
             <c:if test="${not empty message}">
                 <div class="d-flex justify-content-center mt-4">
-                    <div class="card shadow-sm border-0" style="max-width: 600px; width: 100%;">
+                    <div class="card shadow-sm border-0 glass-card" style="max-width: 600px; width: 100%;">
                         <div class="card-body text-center py-5">
 
                             <!-- Icon -->
@@ -46,7 +81,7 @@
             <!-- =============================== -->
             <c:if test="${empty message}">
                 <div class="d-flex justify-content-center mt-4">
-                    <div class="card shadow-sm border-0" style="max-width: 650px; width: 100%;">
+                    <div class="card shadow-sm border-0 glass-block" style="max-width: 650px; width: 100%;">
                         <div class="card-body py-4 px-4">
 
                             <form action="SubjectUpdateExecute.action" method="post">

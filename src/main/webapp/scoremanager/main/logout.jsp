@@ -1,38 +1,69 @@
 <%-- ログアウト画面（Trang logout） --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%> <%-- JSPの文字コード設定 UTF-8（Cấu hình JSP UTF-8） --%>
+    pageEncoding="UTF-8"%>
 
-<%@ taglib prefix="c" uri="jakarta.tags.core"%> <%-- JSTLコアタグライブラリをインポート（Import JSTL core） --%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
 
-<c:import url="/common/base.jsp"> <%-- 共通レイアウト base.jsp を読み込む（Nhúng layout base.jsp） --%>
+<c:import url="/common/base.jsp">
 
-    <c:param name="title"> <%-- タイトルをbase.jspに渡す（Gửi tiêu đề trang sang base.jsp） --%>
+    <c:param name="title">
         得点管理システム
     </c:param>
 
-    <c:param name="content"> <%-- ページのメインコンテンツ（Nội dung chính của trang logout） --%>
+    <c:param name="content">
 
-        <div id="wrap_box"> <%-- 全体レイアウト枠（Khung bao toàn bộ nội dung） --%>
+        <!-- ⭐ CSS glass -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
 
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2">
+            /* Khối glass */
+            #wrap_box {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                padding: 25px;
+                width: 60%;
+                margin: auto;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Thông báo thành công */
+            .glass-success {
+                background: rgba(212, 237, 218, 0.75);
+                backdrop-filter: blur(4px);
+                border: 1px solid #c3e6cb;
+                border-radius: 8px;
+                padding: 12px 20px;
+                color: #155724;
+                text-align: center;
+                font-weight: 500;
+            }
+        </style>
+
+        <div id="wrap_box">
+
+            <h2 class="h3 mb-3 fw-normal py-2">
                 ログアウト
             </h2>
-            <%-- 画面タイトル表示（Hiển thị tiêu đề logout） --%>
 
-            <div id="wrap_box"> <%-- メッセージ表示エリア（Khung hiển thị thông báo） --%>
+            <!-- ⭐ Thông báo dạng glass-success -->
+            <div class="glass-success mb-3">
+                ログアウトしました
+            </div>
 
-                <p class="text-center" style="background-color:#66CC99">
-                    ログアウトしました
-                </p>
-                <%-- ログアウト完了メッセージ（Thông báo đăng xuất thành công） --%>
-
+            <!-- ⭐ Giữ nguyên link login -->
+            <div class="text-center">
                 <a href="${pageContext.request.contextPath}/scoremanager/main/login.jsp">
                     ログイン
                 </a>
-                <%-- ログイン画面へ遷移（Chuyển về trang login） --%>
-                <%-- contextPathを使ってプロジェクト名に依存しないURLを生成（Tạo URL không phụ thuộc tên project） --%>
-
             </div>
+
         </div>
 
     </c:param>

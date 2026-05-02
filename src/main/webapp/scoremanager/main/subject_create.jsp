@@ -1,18 +1,40 @@
 <%-- 科目登録画面（Trang đăng ký môn học） --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%-- JSPの文字コード設定 UTF-8（Cấu hình JSP UTF-8） --%>
 
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<%-- JSTLコアタグライブラリをインポート（Import JSTL core） --%>
 
 <c:import url="/common/base.jsp">
-<%-- 共通レイアウト base.jsp を読み込む（Nhúng layout base.jsp） --%>
 
     <c:param name="title">科目情報登録 - 得点管理システム</c:param>
-    <%-- タイトル設定（Tiêu đề trang） --%>
 
     <c:param name="content">
-    <%-- ページのメインコンテンツ（Nội dung chính của trang） --%>
+
+        <!-- ⭐ CSS làm form nổi rõ nhưng vẫn thấy background -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Form glass */
+            .glass-block {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 8px;
+                padding: 25px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+                width: fit-content;
+            }
+
+            /* Input rõ hơn */
+            .form-control, .form-select {
+                background: rgba(255,255,255,0.85);
+                border: 1px solid #ccc;
+            }
+        </style>
 
         <section class="me-4">
 
@@ -20,47 +42,38 @@
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
                 科目情報登録
             </h2>
-            <%-- 画面タイトル（Tiêu đề trang） --%>
 
             <!-- 入力フォーム -->
-            <form action="SubjectCreateExecute.action" method="post" class="mt-4 px-4">
-            <%-- 登録処理へPOST送信（Action xử lý lưu DB） --%>
+            <form action="SubjectCreateExecute.action" method="post" class="mt-4 px-4 glass-block">
 
                 <!-- 科目コード -->
                 <div class="mb-3 w-50">
                     <label class="form-label" for="subject-cd-input">科目コード</label>
-                    <%-- 科目コード入力（Nhập mã môn học） --%>
 
                     <input class="form-control" type="text" id="subject-cd-input" name="cd" 
                            value="${cd}" placeholder="科目コードを入力してください">
-                    <%-- 入力値保持（Giữ lại giá trị khi có lỗi） --%>
 
                     <div class="text-danger small">${errors.get("cd")}</div>
-                    <%-- エラーメッセージ表示（Hiển thị lỗi） --%>
                 </div>
 
                 <!-- 科目名 -->
                 <div class="mb-3 w-50">
                     <label class="form-label" for="subject-name-input">科目名</label>
-                    <%-- 科目名入力（Nhập tên môn học） --%>
 
                     <input class="form-control" type="text" id="subject-name-input" name="name" 
                            value="${name}" placeholder="科目名を入力してください">
 
                     <div class="text-danger small">${errors.get("name")}</div>
-                    <%-- エラーメッセージ表示（Hiển thị lỗi） --%>
                 </div>
 
                 <!-- 登録ボタン -->
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">登録</button>
-                    <%-- 登録実行（Submit form） --%>
                 </div>
                 
                 <!-- 戻るリンク -->
                 <div class="mt-3">
                     <a href="SubjectList.action">戻る</a>
-                    <%-- 科目一覧画面へ遷移（Quay lại danh sách môn học） --%>
                 </div>
 
             </form>

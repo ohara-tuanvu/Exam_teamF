@@ -12,6 +12,25 @@
 
     <c:param name="content">
 
+        <!-- ⭐ CSS làm card và header nổi rõ nhưng vẫn thấy background -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Card glass */
+            .glass-card {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+        </style>
+
         <section class="me-4">
 
             <!-- タイトル -->
@@ -21,7 +40,7 @@
 
             <!-- 完了メッセージカード -->
             <div class="d-flex justify-content-center mt-5">
-                <div class="card shadow-sm border-0" style="max-width: 600px; width: 100%;">
+                <div class="card shadow-sm border-0 glass-card" style="max-width: 600px; width: 100%;">
                     <div class="card-body text-center py-5">
 
                         <!-- Icon -->

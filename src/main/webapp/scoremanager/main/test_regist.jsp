@@ -3,6 +3,7 @@
 
 <c:import url="/common/base.jsp">
     <c:param name="title">成績登録</c:param>
+
     <c:param name="scripts">
         <script>
             function checkPoint(input) {
@@ -15,6 +16,62 @@
                 }
             }
         </script>
+
+        <!-- ⭐ CSS glass -->
+        <style>
+            /* Header mờ nhẹ */
+            h2 {
+                background: rgba(255,255,255,0.55) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 6px;
+            }
+
+            /* Form tìm kiếm glass */
+            .glass-filter {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+                padding: 18px 20px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Khung cảnh báo vàng */
+            .glass-warning {
+                background: rgba(255,250,220,0.75);
+                backdrop-filter: blur(4px);
+                border: 1px solid #e6d87a;
+                border-radius: 8px;
+                padding: 12px 20px;
+                color: #7a6a00;
+            }
+
+            /* Header bảng */
+            table.table thead tr th {
+                background: rgba(255,255,255,0.75);
+                backdrop-filter: blur(4px);
+                border-bottom: 2px solid #dcdcdc;
+            }
+
+            /* Từng dòng bảng */
+            table.table tbody tr td {
+                background: rgba(255,255,255,0.60);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            /* Hover */
+            table.table tbody tr:hover td {
+                background: rgba(240,247,255,0.85);
+            }
+
+            /* Input điểm rõ hơn */
+            .form-control {
+                background: rgba(255,255,255,0.85);
+            }
+        </style>
+
+        <!-- Giữ nguyên CSS remove spinner -->
         <style>
             input[type=number]::-webkit-inner-spin-button,
             input[type=number]::-webkit-outer-spin-button {
@@ -28,10 +85,11 @@
     <c:param name="content">
 
         <section class="w-100 pb-3">
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-3">成績管理</h2>
 
-            <!-- 検索フォーム -->
-            <form action="TestRegist.action" method="get" class="border rounded p-3 mx-3 mb-3">
+            <h2 class="h3 mb-3 fw-normal py-2 px-3">成績管理</h2>
+
+            <!-- ⭐ Form tìm kiếm glass -->
+            <form action="TestRegist.action" method="get" class="glass-filter mx-3 mb-3">
                 <div class="d-flex align-items-end gap-3">
                     <div>
                         <label class="form-label">入学年度</label>
@@ -42,6 +100,7 @@
                             </c:forEach>
                         </select>
                     </div>
+
                     <div>
                         <label class="form-label">クラス</label>
                         <select class="form-select" name="f2">
@@ -51,6 +110,7 @@
                             </c:forEach>
                         </select>
                     </div>
+
                     <div>
                         <label class="form-label">科目</label>
                         <select class="form-select" name="f3">
@@ -60,6 +120,7 @@
                             </c:forEach>
                         </select>
                     </div>
+
                     <div>
                         <label class="form-label">回数</label>
                         <select class="form-select" name="f4">
@@ -69,6 +130,7 @@
                             </c:forEach>
                         </select>
                     </div>
+
                     <div>
                         <button type="submit" class="btn btn-primary">検索</button>
                     </div>
@@ -82,8 +144,9 @@
                 </c:forEach>
             </c:if>
 
+            <!-- ⭐ Khung cảnh báo vàng glass -->
             <c:if test="${not empty searchError}">
-                <div style="background-color:#fdf8e1; border:1px solid #e6d87a; border-radius:6px; padding:12px 20px; color:#7a6a00; margin: 0 12px;">
+                <div class="glass-warning mx-3 mb-3">
                     ${searchError}
                 </div>
             </c:if>
@@ -91,6 +154,7 @@
             <!-- 成績入力テーブル -->
             <c:if test="${not empty studentList}">
                 <form action="TestRegistExecute.action" method="post">
+
                     <input type="hidden" name="f1" value="${f1}" />
                     <input type="hidden" name="f2" value="${f2}" />
                     <input type="hidden" name="f3" value="${f3}" />
@@ -112,7 +176,7 @@
                                 <th>学生番号</th>
                                 <th>氏名</th>
                                 <th>点数</th>
-                                <th>削除</th> <!-- ★ THÊM -->
+                                <th>削除</th>
                             </tr>
                         </thead>
 
@@ -134,7 +198,6 @@
                                         </div>
                                     </td>
 
-                                    <!-- ★ 削除リンク（点数が存在する場合のみ表示） -->
                                     <td>
                                         <c:if test="${not empty pointMap[student.no]}">
                                             <a href="TestDelete.action?studentNo=${student.no}&subjectCd=${f3}&no=${f4}">
@@ -151,6 +214,7 @@
                     <div class="mx-3">
                         <button type="submit" class="btn btn-primary">登録して終了</button>
                     </div>
+
                 </form>
             </c:if>
 
