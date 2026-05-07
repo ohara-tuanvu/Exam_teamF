@@ -100,12 +100,6 @@
             </c:choose>
 
 
-            <!-- 戻るリンク -->
-            <div class="mt-3">
-                <a href="Menu.action">戻る</a>
-            </div>
-
-
         </section>
 
     </c:param>
