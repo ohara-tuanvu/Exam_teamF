@@ -46,7 +46,7 @@
             </h2>
 
             <div class="my-2 text-end px-4">
-                <a a class="btn btn-primary href="StudentCreate.action">新規登録</a>
+                <a href="StudentCreate.action" class="btn btn-primary">新規登録</a>
             </div>
 
             <form method="get"> 

@@ -98,15 +98,14 @@
                 </c:otherwise>
 
             </c:choose>
-<<<<<<< HEAD
+
 
             <!-- 戻るリンク -->
             <div class="mt-3">
                 <a href="Menu.action">戻る</a>
             </div>
 
-=======
->>>>>>> branch 'master' of https://github.com/ohara-tuanvu/Exam_teamF.git
+
         </section>
 
     </c:param>
