@@ -139,10 +139,12 @@
 
             <!-- ⭐ Hướng dẫn -->
             <c:if test="${empty testList && empty errorSj && empty errorSt}">
-                <div class="text-primary mx-3">
-                    科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
-                </div>
-            </c:if>
+    			<div class="mx-3 mt-3">
+        			<div class="guide-box">
+            			科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
+        			</div>
+    			</div>
+			</c:if>
 
             <!-- ⭐ 科目別結果 -->
             <c:if test="${searchType == 'sj' && not empty testList}">
