@@ -72,8 +72,7 @@
                            value="${classNum.class_num}">
 
                     <button type="submit"
-                            class="btn btn-danger"
-                            onclick="return confirm('削除しますか？');">
+                            class="btn btn-danger">
 
                         削除
 
