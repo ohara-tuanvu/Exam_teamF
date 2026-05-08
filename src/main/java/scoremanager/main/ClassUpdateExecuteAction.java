@@ -34,14 +34,14 @@ public class ClassUpdateExecuteAction extends Action {
 
             // リクエストパラメータ取得（3）
             // Lấy dữ liệu từ form
-            String oldClassNum = req.getParameter("oldClassNum"); // class cũ
-            String newClassNum = req.getParameter("classNum");    // class mới
+            String oldClassNum = req.getParameter("old_class_num");
+            String newClassNum = req.getParameter("class_num");
 
             // エラーリスト（4）
             List<String> errors = new ArrayList<>();
 
             // クラス番号チェック（5）
-            if (newClassNum == null || newClassNum.isEmpty()) {
+            if (newClassNum == null || newClassNum.trim().isEmpty()) {
                 errors.add("クラス番号を入力してください。");
             }
 
@@ -56,13 +56,13 @@ public class ClassUpdateExecuteAction extends Action {
                 req.setAttribute("errors", errors);
 
                 // 入力画面へ戻す
-                req.getRequestDispatcher("/scoremanager/class/class_update.jsp").forward(req, res);
+                req.getRequestDispatcher("/scoremanager/main/class_update.jsp").forward(req, res);
                 return;
             }
 
             // ClassNum インスタンス作成（7）
             ClassNum cn = new ClassNum();
-            cn.setClassNum(newClassNum);
+            cn.setClass_num(newClassNum);
             cn.setSchool(school);
 
             // DB更新（8）
@@ -74,9 +74,6 @@ public class ClassUpdateExecuteAction extends Action {
 
             // 完了画面へフォワード（10）
             req.getRequestDispatcher("/scoremanager/main/class_update_done.jsp").forward(req, res);
-
-            // 一覧へリダイレクト（11）
-            res.sendRedirect("ClassList.action");
 
         } catch (Exception e) {
             // エラー発生時（12）

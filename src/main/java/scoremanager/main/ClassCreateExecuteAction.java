@@ -37,7 +37,7 @@ public class ClassCreateExecuteAction extends Action {
             // リクエストパラメータ取得（3）
             // 入力フォームから送信された値を取得
             // Lấy dữ liệu người dùng nhập từ form
-            String classNumStr = req.getParameter("classNum");
+            String classNumStr = req.getParameter("class_num");
 
             // エラーリスト（4）
             // 入力チェック用のエラーメッセージリスト
@@ -92,11 +92,6 @@ public class ClassCreateExecuteAction extends Action {
             // 完了画面へフォワード（10）
             // Chuyển sang màn hình hoàn tất
             req.getRequestDispatcher("/scoremanager/main/class_create_done.jsp").forward(req, res);
-
-            // 一覧へリダイレクト（11）
-            // クラス一覧画面へリダイレクト
-            // Chuyển hướng sang danh sách lớp
-            res.sendRedirect("ClassList.action");
 
         } catch (Exception e) {
             // エラー発生時（12）

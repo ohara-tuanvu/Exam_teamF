@@ -41,7 +41,7 @@ public class ClassUpdateAction extends Action {
 
             // 画面へ渡す（5）
             // Gửi dữ liệu sang JSP
-            req.setAttribute("classNum", cn);
+            req.setAttribute("cls", cn);
 
             // JSPへフォワード（6）
             // Chuyển sang form update
