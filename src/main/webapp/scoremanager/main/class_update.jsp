@@ -86,32 +86,6 @@
                       method="post"
                       class="px-4 glass-block">
 
-                    <!-- 入学年度 -->
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            入学年度
-                        </label>
-
-                        <select name="ent_year" class="form-select">
-
-                            <c:forEach var="year" items="${ent_year_set}">
-
-                                <option value="${year}"
-                                    <c:if test="${year == cls.entYear}">
-                                        selected
-                                    </c:if>>
-
-                                    ${year}
-
-                                </option>
-
-                            </c:forEach>
-
-                        </select>
-
-                    </div>
-
                     <!-- クラス番号 -->
                     <div class="mb-3">
 
@@ -119,12 +93,20 @@
                             クラス番号
                         </label>
 
-                        <!-- readonly recommended -->
-                        <input type="text"
-                               name="class_num"
-                               class="form-control"
-                               value="${cls.classNum}"
-                               readonly>
+                        <!-- old class number -->
+						<input type="hidden"
+       						name="old_class_num"
+       						value="${cls.classNum}">
+
+							
+						<!-- editable -->
+						<input type="text"
+      						 name="class_num"
+      						 class="form-control"
+      					 	 value="${cls.classNum}"
+      					 	 required
+      					 	 pattern="[0-9]+"
+                             title="数字のみ入力してください">		
 
                     </div>
 
@@ -132,7 +114,9 @@
                     <div class="mt-4">
 
                         <button type="submit"
-                                class="btn btn-primary">
+                                 class="btn btn-primary"
+                                 onclick="return confirm('変更しますか？');">
+                                
 
                             更新
 

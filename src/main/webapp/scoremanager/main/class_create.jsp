@@ -86,50 +86,28 @@
                       method="post"
                       class="px-4 glass-block">
 
-                    <!-- 入学年度 -->
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            入学年度
-                        </label>
-
-                        <select name="ent_year" class="form-select">
-
-                            <option value="">
-                                -- 選択してください --
-                            </option>
-
-                            <c:forEach var="year" items="${ent_year_set}">
-
-                                <option value="${year}">
-                                    ${year}
-                                </option>
-
-                            </c:forEach>
-
-                        </select>
-
-                    </div>
-
                     <!-- クラス番号 -->
-                    <div class="mb-3">
+                    <div class="mb-4">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             クラス番号
                         </label>
 
                         <input type="text"
                                name="class_num"
                                class="form-control"
-                               placeholder="例：101">
-
+                               placeholder="例：101"
+                               required
+                               pattern="[0-9]+"
+                               title="数字のみ入力してください">	
                     </div>
 
                     <!-- Buttons -->
                     <div class="mt-4">
 
                         <button type="submit"
-                                class="btn btn-primary">
+                                class="btn btn-primary"
+                                onclick="return confirm('登録しますか？');">
 
                             登録
 

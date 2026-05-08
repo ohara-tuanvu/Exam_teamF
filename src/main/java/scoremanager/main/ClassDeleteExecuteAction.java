@@ -44,8 +44,6 @@ public class ClassDeleteExecuteAction extends Action {
             // 完了画面へフォワード（6）
             req.getRequestDispatcher("/scoremanager/main/class_delete_done.jsp").forward(req, res);
 
-            // 一覧へリダイレクト（7）
-            res.sendRedirect("ClassList.action");
 
         } catch (Exception e) {
             // エラー発生時（8）

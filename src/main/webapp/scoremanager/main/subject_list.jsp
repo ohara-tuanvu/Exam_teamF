@@ -47,7 +47,7 @@
 
             <!-- 新規登録ボタン -->
             <div class="my-2 text-end px-4">
-                <a href="SubjectCreate.action" class="btn btn-success">
+                <a href="SubjectCreate.action" class="btn btn-primary shadow-sm">
                     新規登録
                 </a>
             </div>
