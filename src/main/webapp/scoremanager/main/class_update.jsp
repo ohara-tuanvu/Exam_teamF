@@ -114,8 +114,7 @@
                     <div class="mt-4">
 
                         <button type="submit"
-                                 class="btn btn-primary"
-                                 onclick="return confirm('変更しますか？');">
+                                 class="btn btn-primary">
                                 
 
                             更新
