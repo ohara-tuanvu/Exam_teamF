@@ -1,4 +1,46 @@
-<section class="me-4">
+<%-- 学生一覧画面（Trang danh sách sinh viên） --%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%> 
+
+<%@ taglib prefix="c" uri="jakarta.tags.core" %> 
+
+<c:import url="/common/base.jsp"> 
+
+    <c:param name="title">得点管理システム</c:param> 
+    <c:param name="scripts"></c:param> 
+
+    <c:param name="content"> 
+
+        <!-- ⭐ CSS làm nổi từng dòng + filter block -->
+        <style>
+            /* Khối filter nổi rõ */
+            #filter {
+                background: rgba(255,255,255,0.65);
+                backdrop-filter: blur(6px);
+                border: 1px solid #e5e5e5;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            /* Header bảng */
+            table.table th {
+                background: rgba(255,255,255,0.75);
+                backdrop-filter: blur(4px);
+                border-bottom: 2px solid #dcdcdc;
+            }
+
+            /* ⭐ Từng dòng bảng nổi rõ */
+            table.table tbody tr {
+                background: rgba(255,255,255,0.60);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            /* Hover nhẹ */
+            table.table tbody tr:hover {
+                background: rgba(240,247,255,0.85);
+            }
+        </style>
+
+        <section class="me-4">
 
     <!-- Title -->
     <h2 class="mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
@@ -71,7 +113,7 @@
                 <button class="btn btn-secondary w-100"
                         id="filter-button">
 
-                    🔍 絞込み
+                    絞込み
 
                 </button>
             </div>
@@ -150,3 +192,5 @@
     </c:choose>
 
 </section>
+    </c:param>
+</c:import>
