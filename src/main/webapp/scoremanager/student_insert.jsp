@@ -127,7 +127,7 @@
                     </div>
 
                     <div class="mt-3 text-center">
-                        <a href="StudentList.action">戻る</a>
+                        <a href="StudentList.action" class="btn btn-outline-secondary ms-1 px-4">戻る</a>
                     </div>
 
                 </form>

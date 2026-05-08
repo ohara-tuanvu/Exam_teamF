@@ -107,8 +107,8 @@
                                 </div>
 
                                 <div class="mt-3">
-                                    <a href="SubjectList.action">戻る</a>
-                                </div>
+    								<a href="SubjectList.action" class="btn btn-outline-secondary px-4">戻る</a>
+								</div>
 
                             </form>
 

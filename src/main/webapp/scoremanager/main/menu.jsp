@@ -57,21 +57,22 @@
         box-shadow: 0 10px 24px rgba(0,0,0,0.15);
         background: #f0f6ff !important;
     }
+    
+    .menu-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+	}
 
-    .menu-card-group div {
-        text-align: center;
-        font-size: 18px;
-        font-weight: 700;
-        color: #0a1a2f;
-    }
-
-    .menu-card-group a {
-        text-decoration: none;
-        color: #0a1a2f;
-        font-weight: 600;
-        display: block;
-        margin-top: 4px;
-    }
+	.menu-card-group a {
+    text-decoration: none;
+    color: #0a1a2f;
+    font-weight: 600;
+    display: block;
+    margin-top: 4px;
+    font-size: 18px;
+	}
+		
 </style>
 
 <c:import url="/common/base.jsp">
@@ -100,7 +101,7 @@
                 <!-- 成績管理 -->
                 <div class="col d-flex align-items-center justify-content-center mx-2 rounded shadow menu-card-group">
                     <div>
-                        <div>成績管理</div>
+                        <div class="menu-title">成績管理</div>
                         <div><a href="TestRegist.action">成績登録</a></div>
                         <div><a href="TestList.action">成績参照</a></div>
                     </div>
