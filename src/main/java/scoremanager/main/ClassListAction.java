@@ -1,42 +1,44 @@
 package scoremanager.main;
 
+import java.io.IOException;
 import java.util.List;
 
 import bean.ClassNum;
+import bean.School;
 import bean.Teacher;
 import dao.ClassNumDao;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class ClassListAction extends Action {
 
     @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void execute(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
 
-        // ===== Lấy session hiện tại =====
-        // ===== 現在のセッションを取得 =====
-        HttpSession session = request.getSession();
+        try {
+            // セッションから教員を取得
+        	Teacher teacher = (Teacher) req.getSession().getAttribute("user");
 
-        // ===== Lấy giáo viên đang đăng nhập =====
-        // ===== ログイン中の教員情報を取得 =====
-        Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // ===== DAO =====
-        // ===== DAO の準備 =====
-        ClassNumDao cNumDao = new ClassNumDao();
+            // 学校情報取得
+            School school = teacher.getSchool();
 
-        // ===== Lấy danh sách class theo school =====
-        // ===== 学校に紐づくクラス一覧を取得 =====
-        List<ClassNum> classList = cNumDao.findBySchool(teacher.getSchool());
+            // クラス一覧取得
+            ClassNumDao dao = new ClassNumDao();
+            List<ClassNum> list = dao.findBySchool(school);
 
-        // ===== Gửi dữ liệu sang JSP =====
-        // ===== JSP へデータを渡す =====
-        request.setAttribute("class_list", classList);
+            // JSPへ渡す
+            req.setAttribute("class_list", list);
 
-        // ===== Chuyển sang trang class_list.jsp =====
-        // ===== クラス一覧画面へフォワード =====
-        request.getRequestDispatcher("class_list.jsp").forward(request, response);
+            // JSPへフォワード
+            req.getRequestDispatcher("/scoremanager/main/class_list.jsp").forward(req, res);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.getRequestDispatcher("/error.jsp").forward(req, res);
+        }
     }
 }
