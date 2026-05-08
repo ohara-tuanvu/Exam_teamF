@@ -140,7 +140,7 @@
             <!-- ⭐ Hướng dẫn -->
             <c:if test="${empty testList && empty errorSj && empty errorSt}">
     			<div class="mx-3 mt-3">
-        			<div class="guide-box">
+        			<div class="alert alert-warning mx-3 mt-3">
             			科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
         			</div>
     			</div>

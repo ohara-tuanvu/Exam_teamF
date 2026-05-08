@@ -71,10 +71,10 @@
                     <button type="submit" class="btn btn-primary">登録</button>
                 </div>
                 
-                <!-- 戻るリンク -->
-                <div class="mt-3">
-                    <a href="SubjectList.action">戻る</a>
-                </div>
+               <!-- 戻るボタン -->
+			<div class="mt-3">
+    			<a href="SubjectList.action" class="btn btn-outline-secondary px-3">戻る</a>
+			</div>
 
             </form>
         </section>

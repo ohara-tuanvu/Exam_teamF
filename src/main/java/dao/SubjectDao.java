@@ -50,6 +50,35 @@ public class SubjectDao extends Dao {
         con.close();
         return subject;
     }
+    public Subject getByName(String name, School school) throws Exception {
+
+        Subject subject = null;
+
+        Connection con = getConnection();
+
+        PreparedStatement st = con.prepareStatement(
+            "SELECT * FROM SUBJECT WHERE NAME = ? AND SCHOOL_CD = ?"
+        );
+
+        st.setString(1, name);
+        st.setString(2, school.getCd());
+
+        ResultSet rs = st.executeQuery();
+
+        if (rs.next()) {
+
+            subject = new Subject();
+
+            subject.setCd(rs.getString("CD"));
+            subject.setName(rs.getString("NAME"));
+            subject.setSchool(school);
+        }
+
+        st.close();
+        con.close();
+
+        return subject;
+    }
 
     public boolean create(Subject subject) throws Exception {
         Connection con = getConnection();

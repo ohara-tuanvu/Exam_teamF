@@ -92,7 +92,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <input class="w-25 btn btn-lg btn-primary" type="submit" value="ログイン"/>
+                        <input class="btn btn-lg btn-primary" type="submit" value="ログイン"/>
                     </div>
 
                 </div>

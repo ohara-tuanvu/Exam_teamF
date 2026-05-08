@@ -50,6 +50,12 @@ public class SubjectCreateExecuteAction extends Action {
             // 科目名の未入力チェック
             errors.put("name", "科目名を入力してください");
         }
+        
+        Subject oldSubject = sDao.getByName(name, teacher.getSchool());
+
+        if (oldSubject != null) {
+            errors.put("name", "科目名が重複しています");
+        }
 
         // DBへデータ保存 5
         // Nếu không có lỗi → tiến hành lưu vào DB
