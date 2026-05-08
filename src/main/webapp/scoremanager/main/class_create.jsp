@@ -106,8 +106,7 @@
                     <div class="mt-4">
 
                         <button type="submit"
-                                class="btn btn-primary"
-                                onclick="return confirm('登録しますか？');">
+                                class="btn btn-primary">
 
                             登録
 
