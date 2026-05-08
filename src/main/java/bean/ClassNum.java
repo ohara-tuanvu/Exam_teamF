@@ -42,10 +42,20 @@ public class ClassNum implements Serializable {
         this.class_num = class_num;
     }
 
-    // 追加：JSP用の camelCase getter 
+    // ================================
+    // 追加：JSP・Action 用 camelCase getter/setter
+    // ================================
+
     public String getClassNum() {
+        // JSP で ${classNum} と書けるようにするための getter
+        // Dùng cho JSP để gọi ${classNum}
         return class_num;
     }
-    // ここまで追加
+
+    public void setClassNum(String classNum) {
+        // Action で setClassNum() を使えるようにするための setter
+        // Dùng cho Action để gọi setClassNum()
+        this.class_num = classNum;
+    }
 
 }

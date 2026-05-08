@@ -4,7 +4,6 @@ package scoremanager.main;
 
 import java.io.IOException;
 
-import bean.ClassNum;
 import bean.School;
 import bean.Teacher;
 import dao.ClassNumDao;
@@ -15,7 +14,7 @@ import tool.Action;
 // Action は MVC パターンでリクエスト処理を行う基底クラス
 // Action là lớp cha dùng để xử lý request theo mô hình MVC
 
-public class ClassUpdateAction extends Action {
+public class ClassDeleteExecuteAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res)
@@ -23,33 +22,33 @@ public class ClassUpdateAction extends Action {
 
         try {
             // セッションから教員を取得（1）
-            // Lấy giáo viên đang đăng nhập từ session
+            // Lấy giáo viên đang đăng nhập
             Teacher teacher = (Teacher) req.getSession().getAttribute("user");
 
             // 学校情報を取得（2）
-            // Lấy trường của giáo viên
+            // Lấy trường
             School school = teacher.getSchool();
 
             // リクエストパラメータ取得（3）
-            // Lấy class_num từ URL
+            // Lấy class_num cần xóa
             String classNumStr = req.getParameter("classNum");
 
-            // クラス情報取得（4）
-            // Lấy thông tin class từ DB
+            // DB削除（4）
+            // Xóa class khỏi DB
             ClassNumDao dao = new ClassNumDao();
-            ClassNum cn = dao.get(classNumStr, school);
+            dao.delete(classNumStr, school);
 
-            // 画面へ渡す（5）
-            // Gửi dữ liệu sang JSP
-            req.setAttribute("classNum", cn);
+            // 完了メッセージ（5）
+            req.setAttribute("message", "削除が完了しました。");
 
-            // JSPへフォワード（6）
-            // Chuyển sang form update
-            req.getRequestDispatcher("/scoremanager/main/class_update.jsp").forward(req, res);
+            // 完了画面へフォワード（6）
+            req.getRequestDispatcher("/scoremanager/main/class_delete_done.jsp").forward(req, res);
+
+            // 一覧へリダイレクト（7）
+            res.sendRedirect("ClassList.action");
 
         } catch (Exception e) {
-            // エラー発生時（7）
-            // Nếu lỗi → chuyển sang error.jsp
+            // エラー発生時（8）
             e.printStackTrace();
             req.getRequestDispatcher("/error.jsp").forward(req, res);
         }

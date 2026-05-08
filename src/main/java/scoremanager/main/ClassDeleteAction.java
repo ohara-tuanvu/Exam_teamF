@@ -15,7 +15,7 @@ import tool.Action;
 // Action は MVC パターンでリクエスト処理を行う基底クラス
 // Action là lớp cha dùng để xử lý request theo mô hình MVC
 
-public class ClassUpdateAction extends Action {
+public class ClassDeleteAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res)
@@ -23,11 +23,11 @@ public class ClassUpdateAction extends Action {
 
         try {
             // セッションから教員を取得（1）
-            // Lấy giáo viên đang đăng nhập từ session
+            // Lấy giáo viên đang đăng nhập
             Teacher teacher = (Teacher) req.getSession().getAttribute("user");
 
             // 学校情報を取得（2）
-            // Lấy trường của giáo viên
+            // Lấy trường
             School school = teacher.getSchool();
 
             // リクエストパラメータ取得（3）
@@ -44,12 +44,11 @@ public class ClassUpdateAction extends Action {
             req.setAttribute("classNum", cn);
 
             // JSPへフォワード（6）
-            // Chuyển sang form update
-            req.getRequestDispatcher("/scoremanager/main/class_update.jsp").forward(req, res);
+            // Chuyển sang màn hình xác nhận xóa
+            req.getRequestDispatcher("/scoremanager/main/class_delete.jsp").forward(req, res);
 
         } catch (Exception e) {
             // エラー発生時（7）
-            // Nếu lỗi → chuyển sang error.jsp
             e.printStackTrace();
             req.getRequestDispatcher("/error.jsp").forward(req, res);
         }
