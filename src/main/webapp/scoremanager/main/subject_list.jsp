@@ -2,6 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <c:import url="/common/base.jsp">
 
@@ -11,28 +12,24 @@
 
         <!-- ⭐ CSS làm bảng nổi rõ nhưng vẫn thấy background -->
         <style>
-            /* Header mờ nhẹ */
             h2 {
                 background: rgba(255,255,255,0.55) !important;
                 backdrop-filter: blur(4px);
                 border-radius: 6px;
             }
 
-            /* Header bảng */
             table.table thead tr th {
                 background: rgba(255,255,255,0.75);
                 backdrop-filter: blur(4px);
                 border-bottom: 2px solid #dcdcdc;
             }
 
-            /* Từng dòng bảng */
             table.table tbody tr {
                 background: rgba(255,255,255,0.60);
                 backdrop-filter: blur(4px);
                 border-bottom: 1px solid #e5e5e5;
             }
 
-            /* Hover */
             table.table tbody tr:hover {
                 background: rgba(240,247,255,0.85);
             }
@@ -40,19 +37,16 @@
 
         <section class="me-4">
 
-            <!-- タイトル -->
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
                 科目管理
             </h2>
 
-            <!-- 新規登録ボタン -->
             <div class="my-2 text-end px-4">
                 <a href="SubjectCreate.action" class="btn btn-primary shadow-sm">
                     新規登録
                 </a>
             </div>
 
-            <!-- データ表示 -->
             <c:choose>
 
                 <c:when test="${not empty subjects}">
@@ -74,13 +68,19 @@
                                     <td>${subject.name}</td>
 
                                     <td>
-                                        <a href="SubjectUpdate.action?cd=${subject.cd}" class="btn btn-sm btn-primary">
+                                        <c:url var="updateUrl" value="SubjectUpdate.action">
+                                            <c:param name="cd" value="${subject.cd}" />
+                                        </c:url>
+                                        <a href="${updateUrl}" class="btn btn-sm btn-primary">
                                             変更
                                         </a>
                                     </td>
 
                                     <td>
-                                        <a href="SubjectDelete.action?cd=${subject.cd}" class="btn btn-sm btn-danger">
+                                        <c:url var="deleteUrl" value="SubjectDelete.action">
+                                            <c:param name="cd" value="${subject.cd}" />
+                                        </c:url>
+                                        <a href="${deleteUrl}" class="btn btn-sm btn-danger">
                                             削除
                                         </a>
                                     </td>
@@ -98,7 +98,6 @@
                 </c:otherwise>
 
             </c:choose>
-
 
         </section>
 
