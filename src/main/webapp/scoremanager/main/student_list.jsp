@@ -129,7 +129,7 @@
                                 </td>
 
                                 <td>
-                                    <a a class="btn btn-primary" href="StudentUpdate.action?no=${student.no}">変更</a>
+                                    <a class="btn btn-primary" href="StudentUpdate.action?no=${student.no}">変更</a>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -137,7 +137,10 @@
                 </c:when>
 
                 <c:otherwise>
-                    <div>学生情報が存在しませんでした。</div>
+                    <!-- ⭐ Chỉ hiển thị khi KHÔNG có lỗi -->
+                    <c:if test="${empty errors}">
+                        <div>学生情報が存在しませんでした。</div>
+                    </c:if>
                 </c:otherwise>
 
             </c:choose>
