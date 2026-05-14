@@ -7,16 +7,13 @@
 
     <c:param name="content">
 
-        <!-- ⭐ CSS glass -->
         <style>
-            /* Header mờ nhẹ */
             h2 {
                 background: rgba(255,255,255,0.55) !important;
                 backdrop-filter: blur(4px);
                 border-radius: 6px;
             }
 
-            /* Card thành công */
             .glass-success {
                 background: rgba(212, 237, 218, 0.75);
                 backdrop-filter: blur(4px);
@@ -26,7 +23,6 @@
                 color: #155724;
             }
 
-            /* Form glass */
             .glass-block {
                 background: rgba(255,255,255,0.65);
                 backdrop-filter: blur(6px);
@@ -36,9 +32,16 @@
                 box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             }
 
-            /* Input rõ hơn */
             .form-control, .form-select {
                 background: rgba(255,255,255,0.85);
+            }
+
+            /* ⭐ Lỗi dưới input */
+            .input-error {
+                color: #ff8c00; /* cam */
+                font-size: 0.85rem;
+                margin-top: 4px;
+                margin-left: 4px;
             }
         </style>
 
@@ -46,7 +49,6 @@
 
             <h2 class="h3 mb-3 fw-normal py-2">学生登録</h2>
 
-            <!-- ⭐ Nếu có message -->
             <c:if test="${not empty message}">
                 <div class="glass-success mx-5 mt-2">
                     ${message}
@@ -57,19 +59,10 @@
                 </div>
             </c:if>
 
-            <!-- ⭐ Nếu không có message → hiển thị form -->
             <c:if test="${empty message}">
 
-                <!-- Lỗi validate -->
-                <c:if test="${errors != null}">
-                    <ul class="text-danger">
-                        <c:forEach var="err" items="${errors}">
-                            <li>${err}</li>
-                        </c:forEach>
-                    </ul>
-                </c:if>
+                <!-- ⭐ KHÔNG còn danh sách lỗi ở trên -->
 
-                <!-- ⭐ Form glass -->
                 <form action="StudentCreateExecute.action" method="post" class="glass-block mx-5">
 
                     <!-- 入学年度 -->
@@ -84,20 +77,32 @@
                             </c:forEach>
                         </select>
                         <label>入学年度</label>
+
+                        <c:if test="${not empty errors.entYear}">
+                            <div class="input-error">${errors.entYear}</div>
+                        </c:if>
                     </div>
 
                     <!-- 学生番号 -->
                     <div class="form-floating mt-3">
                         <input class="form-control" type="text" name="no" maxlength="10"
-                               value="${no}" placeholder="学生番号を入力してください" required />
+                               value="${no}" placeholder="学生番号を入力してください" />
                         <label>学生番号</label>
+
+                        <c:if test="${not empty errors.no}">
+                            <div class="input-error">${errors.no}</div>
+                        </c:if>
                     </div>
 
                     <!-- 氏名 -->
                     <div class="form-floating mt-3">
                         <input class="form-control" type="text" name="name" maxlength="20"
-                               value="${name}" placeholder="氏名を入力してください" required />
+                               value="${name}" placeholder="氏名を入力してください" />
                         <label>氏名</label>
+
+                        <c:if test="${not empty errors.name}">
+                            <div class="input-error">${errors.name}</div>
+                        </c:if>
                     </div>
 
                     <!-- クラス -->
@@ -112,6 +117,10 @@
                             </c:forEach>
                         </select>
                         <label>クラス</label>
+
+                        <c:if test="${not empty errors.classNum}">
+                            <div class="input-error">${errors.classNum}</div>
+                        </c:if>
                     </div>
 
                     <!-- 在学中 -->
@@ -121,7 +130,6 @@
                         <label class="form-check-label">在学中</label>
                     </div>
 
-                    <!-- ボタン -->
                     <div class="mt-4 text-center">
                         <input class="btn btn-primary w-25" type="submit" value="登録" />
                     </div>
