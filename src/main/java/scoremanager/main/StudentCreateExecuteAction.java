@@ -1,6 +1,6 @@
 package scoremanager.main;
 // VI: Package chứa các Action thuộc module scoremanager/main
-// JP: scoremanager/main モジュールの Action クラスをまとめるパッケージ
+// JP: scoremanager/main モジュールに属する Action クラスのパッケージ宣言
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,152 +14,139 @@ import java.util.Map;
 import bean.School;
 import bean.Student;
 import bean.Teacher;
-// VI: Import các Bean cần dùng
-// JP: 必要な Bean クラスをインポート
+// VI: Import các Bean dùng để chứa dữ liệu
+// JP: データ保持用の Bean クラスをインポート
 import dao.ClassNumDao;
 import dao.StudentDao;
-// VI: Import DAO để thao tác DB
+// VI: Import DAO để thao tác với DB
 // JP: DB 操作用の DAO クラスをインポート
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-// VI: Import Servlet API
-// JP: Servlet API をインポート
+// VI: Import Servlet API để xử lý request/response
+// JP: リクエスト・レスポンス処理のため Servlet API をインポート
 import tool.Action;
 // VI: Action là lớp cha theo mô hình MVC
-// JP: MVC パターンの基底 Action クラス
+// JP: MVC パターンの基底クラス Action
 
 public class StudentCreateExecuteAction extends Action {
-// VI: Action xử lý khi nhấn nút “登録”
-// JP: 「登録」ボタン押下時の処理を行う Action
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-    // VI: Hàm chính xử lý request
-    // JP: リクエスト処理のメインメソッド
+    // VI: Hàm xử lý chính khi người dùng nhấn nút "登録"
+    // JP: 「登録」ボタン押下時に実行されるメイン処理
 
         try {
+
+            // ================================
+            // 1) Lấy thông tin giáo viên từ session
+            // VI: Lấy đối tượng Teacher đang đăng nhập từ session.
+            // JP: セッションからログイン中の教員情報を取得する。
+            // ================================
             Teacher teacher = (Teacher) req.getSession().getAttribute("user");
-            // VI: Lấy giáo viên đang đăng nhập từ session
-            // JP: セッションからログイン中の教員を取得
-
             School school = teacher.getSchool();
-            // VI: Lấy trường của giáo viên
-            // JP: 教員が所属する学校を取得
 
+            // ================================
+            // 2) Lấy dữ liệu người dùng nhập từ form
+            // VI: Lấy toàn bộ giá trị người dùng nhập trong form gửi lên.
+            // JP: フォームから送信された入力値を取得する。
+            // ================================
             String entYearStr = req.getParameter("entYear");
             String no = req.getParameter("no");
             String name = req.getParameter("name");
             String classNum = req.getParameter("classNum");
             String isAttendStr = req.getParameter("isAttend");
-            // VI: Lấy dữ liệu người dùng nhập từ form
-            // JP: フォームから送信された値を取得
 
-            // ⭐ Map lỗi theo từng ô
             Map<String, String> errors = new HashMap<>();
-            // VI: Map chứa lỗi theo từng field
-            // JP: 各入力項目ごとのエラーメッセージを保持する Map
 
-            // 入学年度チェック
+            // ================================
+            // 3) Kiểm tra 入学年度 (entYear)
+            // VI: Kiểm tra tính hợp lệ của năm nhập học (phải là số và trong phạm vi cho phép).
+            // JP: 入学年度が正しいか（数値・許容範囲内か）をチェックする。
+            // ================================
             int entYear = 0;
-            // VI: Biến lưu năm nhập học sau khi parse
-            // JP: 入学年度の数値を保持する変数
 
             if (entYearStr == null || entYearStr.isEmpty()) {
                 errors.put("entYear", "入学年度を選択してください。");
-                // VI: Không chọn năm → lỗi
-                // JP: 入学年度未選択 → エラー
             } else {
                 try {
                     entYear = Integer.parseInt(entYearStr);
-                    // VI: Chuyển chuỗi → số
-                    // JP: 文字列を数値に変換
-
                     int year = Calendar.getInstance().get(Calendar.YEAR);
-                    // VI: Lấy năm hiện tại
-                    // JP: 現在の西暦を取得
 
                     if (entYear < year - 10 || entYear > year + 1) {
                         errors.put("entYear", "入学年度が不正です。");
-                        // VI: Năm nhập học không hợp lệ
-                        // JP: 入学年度が範囲外 → エラー
                     }
                 } catch (NumberFormatException e) {
                     errors.put("entYear", "入学年度は数値で入力してください。");
-                    // VI: Không phải số → lỗi
-                    // JP: 数値変換失敗 → エラー
                 }
             }
 
-            // ⭐ 学生番号チェック（3桁の数字）
+            // ================================
+            // 4) Kiểm tra 学生番号 (no)
+            // VI: Kiểm tra mã số sinh viên (phải là 3 chữ số).
+            // JP: 学生番号が正しい形式（3桁の数字）かをチェックする。
+            // ================================
             if (no == null || no.isEmpty()) {
                 errors.put("no", "学生番号を入力してください。");
-                // VI: Không nhập → lỗi
-                // JP: 未入力 → エラー
             } else if (!no.matches("\\d{3}")) {
-                errors.put("no", "学生番号は間違いました。");
-                // VI: Không đúng 3 chữ số → lỗi
-                // JP: 3桁の数字でない → エラー
+                errors.put("no", "学生番号は3桁の数字で入力してください。");
             }
 
-            // 氏名チェック
+            // ================================
+            // 5) Kiểm tra 氏名 (name)
+            // VI: Kiểm tra xem người dùng đã nhập tên hay chưa.
+            // JP: 氏名が入力されているかをチェックする。
+            // ================================
             if (name == null || name.isEmpty()) {
                 errors.put("name", "氏名を入力してください。");
-                // VI: Không nhập tên → lỗi
-                // JP: 氏名未入力 → エラー
             }
 
-            // クラス番号チェック
+            // ================================
+            // 6) Kiểm tra クラス番号 (classNum)
+            // VI: Kiểm tra xem người dùng đã chọn lớp hay chưa.
+            // JP: クラス番号が選択されているかをチェックする。
+            // ================================
             if (classNum == null || classNum.isEmpty()) {
                 errors.put("classNum", "クラスを選択してください。");
-                // VI: Không chọn lớp → lỗi
-                // JP: クラス未選択 → エラー
             }
 
             boolean isAttend = (isAttendStr != null);
             // VI: Checkbox → nếu có giá trị thì true
-            // JP: チェックボックス → 値があれば true
+            // JP: チェックボックスは値があれば true
 
-            // ⭐ Nếu có lỗi → quay lại form
+            // ================================
+            // 7) Nếu có lỗi → quay lại form
+            // VI: Nếu tồn tại lỗi nhập liệu, trả dữ liệu + lỗi về lại form.
+            // JP: 入力エラーがある場合、入力値とエラーを保持して画面に戻す。
+            // ================================
             if (!errors.isEmpty()) {
-
-                ClassNumDao cDao = new ClassNumDao();
-                req.setAttribute("class_num_set", cDao.filter(school));
-                // VI: Lấy lại danh sách lớp
-                // JP: クラス一覧を再取得してセット
-
-                List<Integer> entYearList = new ArrayList<>();
-                int year = Calendar.getInstance().get(Calendar.YEAR);
-                for (int i = year - 10; i <= year + 1; i++) {
-                    entYearList.add(i);
-                }
-                req.setAttribute("ent_year_set", entYearList);
-                // VI: Tạo lại danh sách năm nhập học
-                // JP: 入学年度一覧を再生成してセット
-
-                // Giữ lại giá trị nhập
-                req.setAttribute("entYear", entYearStr);
-                req.setAttribute("no", no);
-                req.setAttribute("name", name);
-                req.setAttribute("classNum", classNum);
-                req.setAttribute("isAttend", isAttendStr);
-                // VI: Giữ lại input để hiển thị lại
-                // JP: 入力値を保持して画面に戻す
-
-                // Gửi lỗi
-                req.setAttribute("errors", errors);
-                // VI: Gửi Map lỗi sang JSP
-                // JP: エラーメッセージを JSP に渡す
-
+                setFormData(req, school, entYearStr, no, name, classNum, isAttendStr, errors);
                 req.getRequestDispatcher("/scoremanager/student_insert.jsp").forward(req, res);
-                // VI: Quay lại màn hình nhập
-                // JP: 入力画面へフォワード
-
                 return;
             }
 
-            // ⭐ Không có lỗi → tạo Student
+            // ================================
+            // ⭐ 8) Kiểm tra trùng 学生番号 trong DB
+            // VI: Kiểm tra xem mã số sinh viên đã tồn tại trong DB hay chưa.
+            // JP: 学生番号が既に DB に存在するかどうかをチェックする。
+            // ================================
+            StudentDao sDao = new StudentDao();
+            Student exist = sDao.get(no, school);
+
+            if (exist != null) {
+                errors.put("no", "学生番号が重複しています。");
+
+                setFormData(req, school, entYearStr, no, name, classNum, isAttendStr, errors);
+                req.getRequestDispatcher("/scoremanager/student_insert.jsp").forward(req, res);
+                return;
+            }
+
+            // ================================
+            // 9) Tạo đối tượng Student hợp lệ
+            // VI: Tạo object Student và gán toàn bộ dữ liệu hợp lệ vào.
+            // JP: Student オブジェクトを生成し、入力値をセットする。
+            // ================================
             Student student = new Student();
             student.setEntYear(entYear);
             student.setNo(no);
@@ -167,34 +154,81 @@ public class StudentCreateExecuteAction extends Action {
             student.setClassNum(classNum);
             student.setAttend(isAttend);
             student.setSchool(school);
-            // VI: Gán toàn bộ dữ liệu hợp lệ vào Student
-            // JP: 入力値を Student オブジェクトにセット
 
-            StudentDao sDao = new StudentDao();
+            // ================================
+            // 10) Lưu vào DB
+            // VI: Gọi DAO để lưu dữ liệu sinh viên vào database.
+            // JP: DAO を使って学生情報を DB に保存する。
+            // ================================
             sDao.save(student);
-            // VI: Lưu vào DB
-            // JP: DB に保存
 
+            // ================================
+            // 11) Hiển thị thông báo hoàn tất
+            // VI: Gửi thông báo “登録完了しました” về JSP để hiển thị.
+            // JP: JSP に「登録完了しました」メッセージをセットして表示する。
+            // ================================
             req.setAttribute("message", "登録完了しました。");
-            // VI: Gửi thông báo hoàn tất
-            // JP: 登録完了メッセージをセット
 
+            setFormData(req, school, entYearStr, "", "", "", null, null);
             req.getRequestDispatcher("/scoremanager/student_insert.jsp").forward(req, res);
-            // VI: Quay lại màn hình nhập (để hiển thị message)
-            // JP: メッセージ表示のため入力画面へフォワード
-
-            res.sendRedirect("StudentList.action");
-            // ⚠️ VI: Dòng này sẽ không chạy vì đã forward trước đó
-            // ⚠️ JP: すでに forward 済みのため、この行は実行されない
+            return;
 
         } catch (Exception e) {
             e.printStackTrace();
-            // VI: In lỗi ra console
-            // JP: エラー内容を出力
-
             req.getRequestDispatcher("/error.jsp").forward(req, res);
-            // VI: Chuyển sang trang lỗi
-            // JP: エラー画面へフォワード
+        }
+    }
+
+    // ==========================================================
+    // ⭐ Hàm tiện ích: Set lại dữ liệu form + danh sách năm/lớp
+    // VI: Hàm tiện ích dùng để gắn lại dữ liệu người dùng nhập,
+    //     đồng thời tạo lại danh sách năm nhập học và danh sách lớp.
+    // JP: 入力値を再セットし、入学年度リストとクラス一覧を再生成するための
+    //     ユーティリティメソッド。
+    // ==========================================================
+    private void setFormData(
+            HttpServletRequest req,
+            School school,
+            String entYearStr,
+            String no,
+            String name,
+            String classNum,
+            String isAttendStr,
+            Map<String, String> errors) {
+
+        try {
+            ClassNumDao cDao = new ClassNumDao();
+            req.setAttribute("class_num_set", cDao.filter(school));
+            // VI: Lấy danh sách lớp theo trường
+            // JP: 学校に紐づくクラス一覧をセット
+
+            List<Integer> entYearList = new ArrayList<>();
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            for (int i = year - 10; i <= year + 1; i++) {
+                entYearList.add(i);
+            }
+            req.setAttribute("ent_year_set", entYearList);
+            // VI: Tạo danh sách năm nhập học
+            // JP: 入学年度一覧をセット
+
+            req.setAttribute("entYear", entYearStr);
+            req.setAttribute("no", no);
+            req.setAttribute("name", name);
+            req.setAttribute("classNum", classNum);
+            req.setAttribute("isAttend", isAttendStr);
+            // VI: Giữ lại dữ liệu người dùng nhập
+            // JP: 入力値を保持して画面に戻す
+
+            if (errors != null) {
+                req.setAttribute("errors", errors);
+                // VI: Gửi lỗi sang JSP
+                // JP: エラーを JSP に渡す
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // VI: In lỗi nếu có
+            // JP: エラー発生時はスタックトレースを表示
         }
     }
 }

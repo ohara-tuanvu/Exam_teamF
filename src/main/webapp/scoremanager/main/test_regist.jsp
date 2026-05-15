@@ -140,7 +140,7 @@
             <!-- エラー表示 -->
             <c:if test="${not empty errors}">
                 <c:forEach var="err" items="${errors}">
-                    <div class="text-danger mx-3">${err}</div>
+                    <div class="text-warning mx-3">${err}</div>
                 </c:forEach>
             </c:if>
 
