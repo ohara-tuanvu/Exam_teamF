@@ -157,13 +157,12 @@
 
             <!-- JP: 初期表示メッセージ -->
             <!-- VI: Thông báo hướng dẫn khi chưa tìm kiếm -->
-            <c:if test="${empty testList && empty errorSj && empty errorSt}">
-                <div class="mx-3 mt-3">
-                    <div class="alert alert-warning mx-3 mt-3">
-                        科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
-                    </div>
-                </div>
-            </c:if>
+            <div class="mx-3 mt-3">
+    			<div class="alert alert-warning mx-3 mt-3">
+        			科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
+    			</div>
+			</div>
+            
 
             <!-- JP: 科目別検索結果 -->
             <!-- VI: Kết quả tìm kiếm theo môn học -->
