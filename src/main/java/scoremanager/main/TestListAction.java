@@ -40,6 +40,14 @@ public class TestListAction extends Action {
         // 5. 検索処理（f=sj: 科目別, f=st: 学生別）
         String searchType = req.getParameter("f");
 
+        // -----------------------------
+        // ⭐ 初回表示（f が null のとき）
+        // -----------------------------
+        if (searchType == null) {
+            req.getRequestDispatcher("test_list.jsp").forward(req, res);
+            return;
+        }
+
         if ("sj".equals(searchType)) {
             // 科目別検索
             String f1 = req.getParameter("f1"); // 入学年度
@@ -51,43 +59,77 @@ public class TestListAction extends Action {
             req.setAttribute("f3", f3);
             req.setAttribute("searchType", "sj");
 
-            if (f1 == null || f1.isEmpty() || f2 == null || f2.isEmpty() || f3 == null || f3.isEmpty()) {
-                req.setAttribute("errorSj", "入学年度とクラスと科目を選択してください");
+            // -----------------------------
+            // ⭐ 入力チェック（missing ロジック）
+            // -----------------------------
+            List<String> missing = new ArrayList<>();
+
+            if (f1 == null || f1.isEmpty()) missing.add("入学年度");
+            if (f2 == null || f2.isEmpty()) missing.add("クラス");
+            if (f3 == null || f3.isEmpty()) missing.add("科目");
+
+            if (missing.size() == 3) {
+                req.setAttribute("errorSj", "入学年度とクラスと科目を選択してください。");
+                req.getRequestDispatcher("test_list.jsp").forward(req, res);
+                return;
+            }
+
+            if (missing.size() > 0) {
+                String msg = String.join("と", missing) + "を選択してください。";
+                req.setAttribute("errorSj", msg);
+                req.getRequestDispatcher("test_list.jsp").forward(req, res);
+                return;
+            }
+
+            // -----------------------------
+            // ⭐ 検索処理
+            // -----------------------------
+            int entYear = Integer.parseInt(f1);
+            dao.TestDao testDao = new dao.TestDao();
+            List<bean.Test> testList = testDao.filterBySubjectAndClass(school, entYear, f2, f3);
+
+            if (testList.isEmpty()) {
+                req.setAttribute("errorSj", "学生情報が存在しませんでした");
             } else {
-                int entYear = Integer.parseInt(f1);
-                dao.TestDao testDao = new dao.TestDao();
-                List<bean.Test> testList = testDao.filterBySubjectAndClass(school, entYear, f2, f3);
-                if (testList.isEmpty()) {
-                    req.setAttribute("errorSj", "学生情報が存在しませんでした");
-                } else {
-                    req.setAttribute("testList", testList);
-                }
+                req.setAttribute("testList", testList);
             }
 
         } else if ("st".equals(searchType)) {
             // 学生別検索
             String f4 = req.getParameter("f4"); // 学生番号
             req.setAttribute("searchType", "st");
+            req.setAttribute("f4", f4);
 
+            // -----------------------------
+            // ⭐ 入力チェック（学生番号）
+            // -----------------------------
             if (f4 == null || f4.trim().isEmpty()) {
                 req.setAttribute("errorSt", "学生番号を入力してください");
+                req.getRequestDispatcher("test_list.jsp").forward(req, res);
+                return;
+            }
+
+            // -----------------------------
+            // ⭐ 学生検索
+            // -----------------------------
+            dao.StudentDao studentDao = new dao.StudentDao();
+            bean.Student student = studentDao.get(f4.trim());
+
+            if (student == null) {
+                req.setAttribute("errorSt", "学生情報が存在しませんでした");
+                req.getRequestDispatcher("test_list.jsp").forward(req, res);
+                return;
+            }
+
+            dao.TestDao testDao = new dao.TestDao();
+            List<bean.Test> testList = testDao.filterByStudent(school, f4.trim());
+
+            req.setAttribute("student", student);
+
+            if (testList.isEmpty()) {
+                req.setAttribute("errorSt", "成績情報が存在しませんでした");
             } else {
-                dao.StudentDao studentDao = new dao.StudentDao();
-                bean.Student student = studentDao.get(f4.trim());
-                if (student == null) {
-                    req.setAttribute("f4", f4);
-                    req.setAttribute("errorSt", "学生情報が存在しませんでした");
-                } else {
-                    dao.TestDao testDao = new dao.TestDao();
-                    List<bean.Test> testList = testDao.filterByStudent(school, f4.trim());
-                    req.setAttribute("student", student);
-                    req.setAttribute("f4", f4);
-                    if (testList.isEmpty()) {
-                        req.setAttribute("errorSt", "成績情報が存在しませんでした");
-                    } else {
-                        req.setAttribute("testList", testList);
-                    }
-                }
+                req.setAttribute("testList", testList);
             }
         }
 
