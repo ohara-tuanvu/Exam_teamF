@@ -59,20 +59,19 @@
     }
     
     .menu-title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-	}
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
 
-	.menu-card-group a {
-    text-decoration: none;
-    color: #0a1a2f;
-    font-weight: 600;
-    display: block;
-    margin-top: 4px;
-    font-size: 18px;
-	}
-		
+    .menu-card-group a {
+        text-decoration: none;
+        color: #0a1a2f;
+        font-weight: 600;
+        display: block;
+        margin-top: 4px;
+        font-size: 18px;
+    }
 </style>
 
 <c:import url="/common/base.jsp">
@@ -116,6 +115,13 @@
                 <div class="col d-flex align-items-center justify-content-center mx-2 rounded shadow menu-card">
                     <a href="ClassList.action">クラス管理</a>
                 </div>
+
+                <!-- ⭐ 教員管理（chỉ admin mới thấy） -->
+                <c:if test="${role == 1 || role == 2}">
+                    <div class="col d-flex align-items-center justify-content-center mx-2 rounded shadow menu-card">
+                        <a href="TeacherList.action">教員管理</a>
+                    </div>
+                </c:if>
 
             </div>
         </section>

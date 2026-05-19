@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import bean.School;
 
@@ -106,4 +108,115 @@ public class SchoolDao extends Dao {
         // School オブジェクト（または null）を返す
         return school;
     }
+    
+    /**
+     * getAllメソッド 全ての学校を取得する
+     *
+     * @return List<School>
+     * 全学校のリスト
+     * @throws Exception
+     */
+    public List<School> getAll() throws Exception {
+
+        List<School> list = new ArrayList<>();
+     // Tạo danh sách để chứa các trường
+        // 学校一覧を格納するリストを作成
+
+        // DB コネクションを取得
+        // Lấy kết nối đến DB
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+
+        try {
+        	// 全学校を取得する SQL
+            // Lệnh SQL lấy toàn bộ danh sách trường
+            statement = connection.prepareStatement(
+                "select * from school order by cd"
+            );
+            
+            // SQL を実行して結果を取得
+            // Thực thi SQL và lấy kết quả
+            ResultSet rSet = statement.executeQuery();
+            
+            // カラム cd をセット
+            // Gán mã trường (cd)
+            while (rSet.next()) {
+            	// 1 dòng dữ liệu → tạo đối tượng School
+                // 1 レコードごとに School オブジェクトを生成
+                School school = new School();
+                
+                // カラム cd をセット
+                // Gán mã trường (cd)
+                school.setCd(rSet.getString("cd"));
+                
+                // カラム name をセット
+                // Gán tên trường (name)
+                school.setName(rSet.getString("name"));
+                
+                // リストに追加
+                // Thêm vào danh sách
+                list.add(school);
+            }
+
+        } finally {
+        	// PreparedStatement を閉じる
+            // Đóng PreparedStatement
+            if (statement != null) statement.close();
+            
+            // コネクションを閉じる
+            // Đóng kết nối DB
+            if (connection != null) connection.close();
+        }
+        
+        // 学校一覧を返す
+        // Trả về danh sách trường
+        return list;
+    }
+    
+    public void insert(School school) throws Exception {
+
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        try {
+        	 // DB コネクションを取得
+            // Lấy kết nối đến DB
+            con = getConnection();
+            
+            // INSERT 文を準備
+            // Chuẩn bị câu SQL thêm trường mới
+            String sql = "INSERT INTO school (cd, name) VALUES (?, ?)";
+            
+            // ? に学校コードをバインド
+            // Gán mã trường vào ?
+            ps = con.prepareStatement(sql);
+            
+            // ? に学校コードをバインド
+            // Gán mã trường vào?
+            ps.setString(1, school.getCd());
+            
+            // ? に学校名をバインド
+            // Gán tên trường vào ?
+            ps.setString(2, school.getName());
+            
+            // SQL を実行（データ追加）
+            // Thực thi SQL (thêm dữ liệu)
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+        	// エラーを上位に投げる
+            // Ném lỗi lên tầng trên xử lý
+            throw e;
+        } finally {
+            if (ps != null) ps.close();
+            
+            // コネクションを閉じる
+            // Đóng kết nối DB
+            if (con != null) con.close();
+        }
+    }
+
+    
+    
+
 }

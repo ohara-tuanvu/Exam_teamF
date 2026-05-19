@@ -30,6 +30,9 @@ public class Teacher extends User implements Serializable {
     private String schoolCd;
     // Mã trường (school_cd) – dùng để truy vấn DB
     // 学校コード（school_cd）– DB 取得用
+    
+    private int role;
+
 
     public String getSchoolCd() {
         // Trả về mã trường
@@ -91,4 +94,19 @@ public class Teacher extends User implements Serializable {
         // 所属学校をセットする
         this.school = school;
     }
+    
+    public int getRole() {
+    	// Trả về giá trị role của giáo viên  
+        // 教員のrole値を返す  
+        return role;
+    }
+
+    public void setRole(int role) {
+    	// Thay đổi (gán) giá trị role cho giáo viên  
+        // 教員のrole値を設定する 
+        this.role = role;
+    }
+    
+    
+
 }
