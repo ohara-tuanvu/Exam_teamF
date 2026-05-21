@@ -13,6 +13,7 @@ public class TestUpdateAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+
         // 1. セッションから教員・学校情報取得
         HttpSession session = req.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
@@ -23,9 +24,21 @@ public class TestUpdateAction extends Action {
         String subjectCd = req.getParameter("subjectCd");
         int no = Integer.parseInt(req.getParameter("no"));
 
-        // 3. DBから対象成績を取得
-        Test test = new TestDao().get(studentNo, subjectCd, school, no);
+        TestDao testDao = new TestDao();
+        Test test;
 
+        // ================================
+        // ⭐ 権限分岐（SuperAdmin / Admin）
+        // ================================
+        if (teacher.getRole() == 2) {
+            // SUPERADMIN → 学校制限なし
+            test = testDao.getForSuperAdmin(studentNo, subjectCd, no);
+        } else {
+            // Admin / Teacher → 自分の学校のみ
+            test = testDao.get(studentNo, subjectCd, school, no);
+        }
+
+        // 3. 該当データがない場合
         if (test == null) {
             req.getRequestDispatcher("/error.jsp").forward(req, res);
             return;

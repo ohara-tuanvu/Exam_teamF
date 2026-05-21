@@ -26,16 +26,26 @@ public class StudentAddTempAction extends Action {
         // JP: 日本語入力対応のためUTF-8を設定
 
         Teacher teacher = (Teacher) req.getSession().getAttribute("user");
+        // VI: Lấy thông tin giáo viên đang đăng nhập
+        // JP: ログイン中の教師情報を取得
+
         School school = teacher.getSchool();
+        // VI: Lấy trường của giáo viên
+        // JP: 教師に紐づく学校を取得
 
         List<Student> tempList = (List<Student>) req.getSession().getAttribute("temp_students");
+        // VI: Lấy danh sách tạm từ session
+        // JP: セッションから一時学生リストを取得
+
         if (tempList == null) {
             tempList = new ArrayList<>();
+            // VI: Nếu chưa có → tạo mới
+            // JP: 存在しない場合 → 新規作成
         }
 
-        // ---------------------------------------------
+        // ----------------------------------------------------
         // Lấy dữ liệu từ form / フォーム入力の取得
-        // ---------------------------------------------
+        // ----------------------------------------------------
         String entYearStr = req.getParameter("entYear");
         String no = req.getParameter("no");
         String name = req.getParameter("name");
@@ -43,11 +53,12 @@ public class StudentAddTempAction extends Action {
         String isAttendStr = req.getParameter("isAttend");
 
         Map<String, String> errors = new HashMap<>();
+        // VI: Map chứa lỗi
+        // JP: エラーメッセージを格納するMap
 
-        /* ----------------------------------------------------
-           Validate dữ liệu nhập
-           入力データのチェック
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Validate 入力チェック
+        // ----------------------------------------------------
         int entYear = 0;
         if (entYearStr == null || entYearStr.isEmpty()) {
             errors.put("entYear", "入学年度を選択してください。");
@@ -67,43 +78,50 @@ public class StudentAddTempAction extends Action {
             errors.put("classNum", "クラスを選択してください。");
         }
 
-        /* ----------------------------------------------------
-           ⭐ Kiểm tra trùng trong danh sách tạm
-           ⭐ 一時リスト内の重複チェック
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Kiểm tra trùng trong danh sách tạm
+        // 一時リスト内の重複チェック
+        // ----------------------------------------------------
         for (Student st : tempList) {
             if (st.getNo().equals(no)) {
                 errors.put("no", "学生番号「" + no + "」は既に追加されています。");
-                // VI: Mã học sinh đã tồn tại trong danh sách tạm
-                // JP: 学生番号が一時リスト内に既に存在する
                 break;
             }
         }
 
-        /* ----------------------------------------------------
-           ⭐ Kiểm tra trùng trong DB
-           ⭐ DB内の重複チェック
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Kiểm tra trùng trong DB
+        // DB内の重複チェック
+        // ----------------------------------------------------
         if (!errors.containsKey("no")) {
             StudentDao sDao = new StudentDao();
             Student exist = sDao.get(no, school);
 
             if (exist != null) {
                 errors.put("no", "学生番号「" + no + "」は既に登録されています。");
-                // VI: Mã học sinh đã tồn tại trong DB
-                // JP: 学生番号がDBに既に存在する
             }
         }
 
-        /* ----------------------------------------------------
-           Nếu có lỗi → quay lại form
-           エラーがある場合 → 入力画面へ戻す
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Nếu có lỗi → quay lại form
+        // エラーがある場合 → 入力画面へ戻す
+        // ----------------------------------------------------
         if (!errors.isEmpty()) {
 
             ClassNumDao cDao = new ClassNumDao();
-            req.setAttribute("class_num_set", cDao.filter(school));
+            // VI: DAO lấy danh sách lớp
+            // JP: クラス一覧取得DAO
 
+            // ⭐ SUPERADMIN → lấy toàn bộ class
+            // ⭐ SUPERADMIN → 全クラス取得
+            if (teacher.getRole() == 2) {
+                req.setAttribute("class_num_set", cDao.findAll());
+            } else {
+                req.setAttribute("class_num_set", cDao.filter(school));
+            }
+
+            // VI: Tạo danh sách năm nhập học
+            // JP: 入学年度リストを作成
             List<Integer> entYearList = new ArrayList<>();
             int year = Calendar.getInstance().get(Calendar.YEAR);
             for (int i = year - 10; i <= year + 1; i++) {
@@ -111,7 +129,8 @@ public class StudentAddTempAction extends Action {
             }
             req.setAttribute("ent_year_set", entYearList);
 
-            // Giữ lại dữ liệu nhập
+            // VI: Giữ lại dữ liệu nhập
+            // JP: 入力値を保持
             req.setAttribute("entYear", entYearStr);
             req.setAttribute("no", no);
             req.setAttribute("name", name);
@@ -125,10 +144,10 @@ public class StudentAddTempAction extends Action {
             return;
         }
 
-        /* ----------------------------------------------------
-           Không có lỗi → thêm vào danh sách tạm
-           エラーなし → 一時リストに追加
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Không có lỗi → thêm vào danh sách tạm
+        // エラーなし → 一時リストに追加
+        // ----------------------------------------------------
         Student s = new Student();
         s.setEntYear(entYear);
         s.setNo(no);
@@ -140,12 +159,18 @@ public class StudentAddTempAction extends Action {
         tempList.add(s);
         req.getSession().setAttribute("temp_students", tempList);
 
-        /* ----------------------------------------------------
-           Reset form
-           フォームリセット
-        ---------------------------------------------------- */
+        // ----------------------------------------------------
+        // Reset form / フォームリセット
+        // ----------------------------------------------------
         ClassNumDao cDao = new ClassNumDao();
-        req.setAttribute("class_num_set", cDao.filter(school));
+
+        // ⭐ SUPERADMIN → dùng findAll()
+        // ⭐ SUPERADMIN → findAll() を使用
+        if (teacher.getRole() == 2) {
+            req.setAttribute("class_num_set", cDao.findAll());
+        } else {
+            req.setAttribute("class_num_set", cDao.filter(school));
+        }
 
         List<Integer> entYearList = new ArrayList<>();
         int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -154,6 +179,8 @@ public class StudentAddTempAction extends Action {
         }
         req.setAttribute("ent_year_set", entYearList);
 
+        // VI: Reset giá trị form
+        // JP: フォーム値をリセット
         req.setAttribute("entYear", "");
         req.setAttribute("no", "");
         req.setAttribute("name", "");

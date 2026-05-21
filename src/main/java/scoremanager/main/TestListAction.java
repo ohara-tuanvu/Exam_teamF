@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bean.School;
+import bean.Student;
 import bean.Subject;
 import bean.Teacher;
 import dao.ClassNumDao;
+import dao.SchoolDao;
+import dao.StudentDao;
 import dao.SubjectDao;
+import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -18,102 +22,137 @@ public class TestListAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-        // 1. セッションから教員・学校情報取得
+
         HttpSession session = req.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
+
         School school = teacher.getSchool();
 
-        // 2. プルダウン用データ取得
-        List<String> classNumList = new ClassNumDao().filter(school);
-        List<Subject> subjectList = new SubjectDao().filter(school);
+        ClassNumDao classDao = new ClassNumDao();
+        SubjectDao subjectDao = new SubjectDao();
+        StudentDao studentDao = new StudentDao();
+        TestDao testDao = new TestDao();
+        SchoolDao schoolDao = new SchoolDao();
 
-        // 3. 入学年度リスト生成
+        // ================================
+        // ⭐ SUPERADMIN → load danh sách trường
+        // ================================
+        if (teacher.getRole() == 2) {
+            req.setAttribute("schoolList", schoolDao.findAll());
+        }
+
+        // ================================
+        // ⭐ Load dropdown class + subject
+        // ================================
+        List<String> classNumList;
+        List<Subject> subjectList;
+
+        if (teacher.getRole() == 2) {
+            classNumList = classDao.findAllClassNum();
+            subjectList = subjectDao.findAll();
+        } else {
+            classNumList = classDao.filter(school);
+            subjectList = subjectDao.filter(school);
+        }
+
+        // 入学年度
         int currentYear = LocalDate.now().getYear();
         List<Integer> entYearList = new ArrayList<>();
-        for (int i = currentYear; i >= currentYear - 5; i--) entYearList.add(i);
+        for (int i = currentYear; i >= currentYear - 10; i--) entYearList.add(i);
 
-        // 4. リクエストにセット
         req.setAttribute("classNumList", classNumList);
         req.setAttribute("subjectList", subjectList);
         req.setAttribute("entYearList", entYearList);
 
-        // 5. 検索処理（f=sj: 科目別, f=st: 学生別）
+        // ================================
+        // ⭐ Lấy loại tìm kiếm
+        // ================================
         String searchType = req.getParameter("f");
 
-        // -----------------------------
-        // ⭐ 初回表示（f が null のとき）
-        // -----------------------------
         if (searchType == null) {
             req.getRequestDispatcher("test_list.jsp").forward(req, res);
             return;
         }
 
+        // ================================
+        // ⭐ Lấy school_cd nếu SUPERADMIN
+        // ================================
+        String schoolCd = req.getParameter("school_cd");
+        req.setAttribute("school_cd", schoolCd);
+
+        if (teacher.getRole() == 2) {
+            if (schoolCd == null || schoolCd.isEmpty()) {
+                req.setAttribute("errorSj", "学校を選択してください。");
+                req.getRequestDispatcher("test_list.jsp").forward(req, res);
+                return;
+            }
+            school = schoolDao.get(schoolCd);
+        }
+
+        // ================================
+        // ⭐ 科目別検索
+        // ================================
         if ("sj".equals(searchType)) {
-            // 科目別検索
-            String f1 = req.getParameter("f1"); // 入学年度
-            String f2 = req.getParameter("f2"); // クラス
-            String f3 = req.getParameter("f3"); // 科目CD
+
+            String f1 = req.getParameter("f1");
+            String f2 = req.getParameter("f2");
+            String f3 = req.getParameter("f3");
 
             req.setAttribute("f1", f1);
             req.setAttribute("f2", f2);
             req.setAttribute("f3", f3);
             req.setAttribute("searchType", "sj");
 
-            // -----------------------------
-            // ⭐ 入力チェック（missing ロジック）
-            // -----------------------------
             List<String> missing = new ArrayList<>();
-
             if (f1 == null || f1.isEmpty()) missing.add("入学年度");
             if (f2 == null || f2.isEmpty()) missing.add("クラス");
             if (f3 == null || f3.isEmpty()) missing.add("科目");
 
-            if (missing.size() == 3) {
-                req.setAttribute("errorSj", "入学年度とクラスと科目を選択してください。");
+            if (!missing.isEmpty()) {
+                req.setAttribute("errorSj", String.join("と", missing) + "を選択してください。");
                 req.getRequestDispatcher("test_list.jsp").forward(req, res);
                 return;
             }
 
-            if (missing.size() > 0) {
-                String msg = String.join("と", missing) + "を選択してください。";
-                req.setAttribute("errorSj", msg);
-                req.getRequestDispatcher("test_list.jsp").forward(req, res);
-                return;
-            }
-
-            // -----------------------------
-            // ⭐ 検索処理
-            // -----------------------------
             int entYear = Integer.parseInt(f1);
-            dao.TestDao testDao = new dao.TestDao();
-            List<bean.Test> testList = testDao.filterBySubjectAndClass(school, entYear, f2, f3);
+
+            List<bean.Test> testList;
+
+            if (teacher.getRole() == 2) {
+                testList = testDao.filterBySubjectAndClassForSuperAdmin(entYear, f2, f3);
+            } else {
+                testList = testDao.filterBySubjectAndClass(school, entYear, f2, f3);
+            }
 
             if (testList.isEmpty()) {
                 req.setAttribute("errorSj", "学生情報が存在しませんでした");
             } else {
                 req.setAttribute("testList", testList);
             }
+        }
 
-        } else if ("st".equals(searchType)) {
-            // 学生別検索
-            String f4 = req.getParameter("f4"); // 学生番号
+        // ================================
+        // ⭐ 学生別検索
+        // ================================
+        else if ("st".equals(searchType)) {
+
+            String f4 = req.getParameter("f4");
             req.setAttribute("searchType", "st");
             req.setAttribute("f4", f4);
 
-            // -----------------------------
-            // ⭐ 入力チェック（学生番号）
-            // -----------------------------
             if (f4 == null || f4.trim().isEmpty()) {
                 req.setAttribute("errorSt", "学生番号を入力してください");
                 req.getRequestDispatcher("test_list.jsp").forward(req, res);
                 return;
             }
 
-            // -----------------------------
-            // ⭐ 学生検索
-            // -----------------------------
-            dao.StudentDao studentDao = new dao.StudentDao();
-            bean.Student student = studentDao.get(f4.trim());
+            Student student;
+
+            if (teacher.getRole() == 2) {
+                student = studentDao.get(f4.trim());
+            } else {
+                student = studentDao.get(f4.trim(), school);
+            }
 
             if (student == null) {
                 req.setAttribute("errorSt", "学生情報が存在しませんでした");
@@ -121,8 +160,13 @@ public class TestListAction extends Action {
                 return;
             }
 
-            dao.TestDao testDao = new dao.TestDao();
-            List<bean.Test> testList = testDao.filterByStudent(school, f4.trim());
+            List<bean.Test> testList;
+
+            if (teacher.getRole() == 2) {
+                testList = testDao.filterByStudent(f4.trim());
+            } else {
+                testList = testDao.filterByStudent(school, f4.trim());
+            }
 
             req.setAttribute("student", student);
 
@@ -133,7 +177,6 @@ public class TestListAction extends Action {
             }
         }
 
-        // 6. JSPへフォワード
         req.getRequestDispatcher("test_list.jsp").forward(req, res);
     }
 }

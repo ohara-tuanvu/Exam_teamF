@@ -20,30 +20,34 @@ public class TestDeleteAction extends Action {
         try {
             // ================================
             // A. Lấy tham số từ URL
-            // URL ví dụ:
-            // TestDelete.action?studentNo=139&subjectCd=A01&no=1
             // ================================
             String studentNo = req.getParameter("studentNo");
             String subjectCd = req.getParameter("subjectCd");
             String noStr = req.getParameter("no");
 
-            int no = Integer.parseInt(noStr); // no = 回数
+            int no = Integer.parseInt(noStr);
 
             // ================================
-            // B. Lấy thông tin school từ session
+            // B. Lấy thông tin user
             // ================================
             Teacher teacher = (Teacher) req.getSession().getAttribute("user");
             School school = teacher.getSchool();
 
-            // ================================
-            // C. Lấy dữ liệu Test để hiển thị màn hình xác nhận
-            // ※ LƯU Ý: TestDao.get() có thứ tự tham số:
-            // (studentNo, subjectCd, school, no)
-            // ================================
             TestDao tDao = new TestDao();
-            Test test = tDao.get(studentNo, subjectCd, school, no);
+            Test test = null;
 
-            // Nếu không tìm thấy dữ liệu → chuyển sang error.jsp
+            // ================================
+            // C. Phân quyền SuperAdmin
+            // ================================
+            if (teacher.getRole() == 2) {
+                // SUPERADMIN → lấy dữ liệu không giới hạn school
+                test = tDao.getForSuperAdmin(studentNo, subjectCd, no);
+            } else {
+                // Admin / Teacher → chỉ lấy trong trường của họ
+                test = tDao.get(studentNo, subjectCd, school, no);
+            }
+
+            // Không tìm thấy dữ liệu
             if (test == null) {
                 req.setAttribute("message", "成績情報が見つかりません。");
                 req.getRequestDispatcher("/error.jsp").forward(req, res);

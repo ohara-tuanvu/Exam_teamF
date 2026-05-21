@@ -1,6 +1,6 @@
 package scoremanager.main;
-// Package chứa các Action thuộc module scoremanager/main
-// scoremanager/main モジュールに属する Action クラスをまとめるパッケージ
+// VI: Package chứa các Action thuộc module scoremanager/main
+// JP: scoremanager/main モジュールに属する Action クラスをまとめるパッケージ
 
 import java.util.List;
 
@@ -17,41 +17,48 @@ public class SubjectListAction extends Action {
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-        // ローカル変数の宣言 1
-        // Khai báo biến cục bộ
-        // セッション・教員情報・DAO を準備
-        HttpSession session = req.getSession(); // セッション
-        Teacher teacher = (Teacher) session.getAttribute("user"); // ログインユーザー
-        SubjectDao sDao = new SubjectDao(); // 科目DAO
+        // ---------------------------------------------
+        // 1) Lấy session + giáo viên đăng nhập
+        // 1) セッションとログイン中の教員を取得
+        // ---------------------------------------------
+        HttpSession session = req.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // リクエストパラメータ―の取得 2
-        // なし
-        // Không có tham số nào cần lấy từ request
-        // パラメータ取得なし
+        // ---------------------------------------------
+        // 2) Tạo DAO
+        // 2) DAO を生成
+        // ---------------------------------------------
+        SubjectDao sDao = new SubjectDao();
 
-        // DBからデータ取得 3
-        // Lấy danh sách môn học theo trường của giáo viên
-        // ログインユーザーの学校に紐づく科目一覧を取得
-        List<Subject> subjects = sDao.filter(teacher.getSchool());
+        // ---------------------------------------------
+        // 3) Lấy danh sách môn học
+        //    SUPERADMIN → findAll()
+        //    Admin/Teacher → filter(school)
+        //
+        // 3) 科目一覧を取得
+        //    SUPERADMIN → 全科目取得
+        //    Admin/Teacher → 学校に紐づく科目のみ取得
+        // ---------------------------------------------
+        List<Subject> subjects;
 
-        // ビジネスロジック 4
-        // なし
-        // Không có xử lý logic đặc biệt
-        // 特別な業務ロジックなし
+        if (teacher.getRole() == 2) {
+            // SUPERADMIN
+            subjects = sDao.findAll();
+        } else {
+            // Admin/Teacher
+            subjects = sDao.filter(teacher.getSchool());
+        }
 
-        // DBへデータ保存 5
-        // なし
-        // Không lưu gì vào DB
-        // DB 更新処理なし
-
-        // レスポンス値をセット 6
-        // Gửi danh sách môn học sang JSP
-        // JSP へ科目一覧を渡す
+        // ---------------------------------------------
+        // 4) Gửi dữ liệu sang JSP
+        // 4) JSP へ科目一覧を渡す
+        // ---------------------------------------------
         req.setAttribute("subjects", subjects);
 
-        // JSPへフォワード 7
-        // Chuyển sang trang danh sách môn học
-        // 科目一覧画面（subject_list.jsp）へフォワード
+        // ---------------------------------------------
+        // 5) Forward sang subject_list.jsp
+        // 5) subject_list.jsp へフォワード
+        // ---------------------------------------------
         req.getRequestDispatcher("subject_list.jsp").forward(req, res);
     }
 }

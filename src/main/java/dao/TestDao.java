@@ -14,7 +14,7 @@ import bean.Test;
 
 public class TestDao extends Dao {
 
-    // ResultSet → Test オブジェクトに変換する共通処理
+    // ResultSet → Test オブジェクトに変換（Admin/Teacher 用）
     private Test mapRow(ResultSet rSet, School school) throws Exception {
         Test test = new Test();
 
@@ -24,12 +24,44 @@ public class TestDao extends Dao {
         int point = rSet.getInt("point");
         String classNum = rSet.getString("class_num");
 
-
-        // 学生情報を取得
+        // 学生情報
         StudentDao studentDao = new StudentDao();
         Student student = studentDao.get(studentNo);
 
-        // 科目情報を取得
+        // 科目情報
+        SubjectDao subjectDao = new SubjectDao();
+        Subject subject = subjectDao.get(subjectCd, school);
+
+        test.setStudent(student);
+        test.setSubject(subject);
+        test.setSchool(school);
+        test.setNo(no);
+        test.setPoint(point);
+        test.setClassNum(classNum);
+
+        return test;
+    }
+
+    // SuperAdmin 用：学校を含めて取得
+    private Test mapRowForSuperAdmin(ResultSet rSet) throws Exception {
+        Test test = new Test();
+
+        String studentNo = rSet.getString("student_no");
+        String subjectCd = rSet.getString("subject_cd");
+        int no = rSet.getInt("no");
+        int point = rSet.getInt("point");
+        String classNum = rSet.getString("class_num");
+        String schoolCd = rSet.getString("school_cd");
+
+        // 学校情報
+        SchoolDao schoolDao = new SchoolDao();
+        School school = schoolDao.get(schoolCd);
+
+        // 学生情報
+        StudentDao studentDao = new StudentDao();
+        Student student = studentDao.get(studentNo);
+
+        // 科目情報
         SubjectDao subjectDao = new SubjectDao();
         Subject subject = subjectDao.get(subjectCd, school);
 
@@ -66,7 +98,7 @@ public class TestDao extends Dao {
         return list;
     }
 
-    // 科目コードで絞り込み（科目別成績一覧用）
+    // 科目コードで絞り込み（Admin/Teacher 用）
     public List<Test> filterBySubject(School school, String subjectCd) throws Exception {
         List<Test> list = new ArrayList<>();
         Connection connection = null;
@@ -90,6 +122,29 @@ public class TestDao extends Dao {
         return list;
     }
 
+    // SuperAdmin 用：科目コードで全学校から取得
+    public List<Test> filterBySubject(String subjectCd) throws Exception {
+        List<Test> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "SELECT * FROM TEST WHERE TRIM(SUBJECT_CD) = ? ORDER BY SCHOOL_CD, STUDENT_NO, NO ASC"
+            );
+            statement.setString(1, subjectCd.trim());
+            ResultSet rSet = statement.executeQuery();
+            while (rSet.next()) {
+                list.add(mapRowForSuperAdmin(rSet));
+            }
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+        return list;
+    }
+
     // 学生番号で絞り込み（学生別成績一覧用）
     public List<Test> filterByStudent(School school, String studentNo) throws Exception {
         List<Test> list = new ArrayList<>();
@@ -103,9 +158,7 @@ public class TestDao extends Dao {
             statement.setString(1, school.getCd().trim());
             statement.setString(2, studentNo.trim());
             ResultSet rSet = statement.executeQuery();
-            int count = 0;
             while (rSet.next()) {
-                count++;
                 list.add(mapRow(rSet, school));
             }
         } finally {
@@ -241,7 +294,7 @@ public class TestDao extends Dao {
         return list;
     }
 
-    // 入学年度+クラス+科目コードで成績一覧取得（成績参照科目別用 - 1回と2回をまとめて）
+    // 入学年度+クラス+科目コードで成績一覧取得（成績参照科目別用）
     public List<Test> filterBySubjectAndClass(School school, int entYear, String classNum, String subjectCd) throws Exception {
         List<Test> list = new ArrayList<>();
         Connection connection = null;
@@ -267,4 +320,136 @@ public class TestDao extends Dao {
         }
         return list;
     }
+    
+ // SuperAdmin 用：学生番号で全学校から成績取得
+    public List<Test> filterByStudent(String studentNo) throws Exception {
+        List<Test> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "SELECT * FROM TEST WHERE TRIM(STUDENT_NO) = ? ORDER BY SCHOOL_CD, SUBJECT_CD, NO ASC"
+            );
+            statement.setString(1, studentNo.trim());
+            ResultSet rSet = statement.executeQuery();
+            while (rSet.next()) {
+                list.add(mapRowForSuperAdmin(rSet));
+            }
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+        return list;
+    }
+    
+    public Test getForSuperAdmin(String studentNo, String subjectCd, int no) throws Exception {
+        Test test = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "SELECT * FROM TEST WHERE STUDENT_NO = ? AND SUBJECT_CD = ? AND NO = ?"
+            );
+            statement.setString(1, studentNo);
+            statement.setString(2, subjectCd);
+            statement.setInt(3, no);
+
+            ResultSet rSet = statement.executeQuery();
+            if (rSet.next()) {
+                test = mapRowForSuperAdmin(rSet);
+            }
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+        return test;
+    }
+    
+ // SuperAdmin 用：学校を限定せず削除
+    public boolean deleteForSuperAdmin(String studentNo, String subjectCd, int no) throws Exception {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        int count = 0;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "DELETE FROM TEST WHERE STUDENT_NO = ? AND SUBJECT_CD = ? AND NO = ?"
+            );
+            statement.setString(1, studentNo);
+            statement.setString(2, subjectCd);
+            statement.setInt(3, no);
+
+            count = statement.executeUpdate();
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+
+        return count > 0;
+    }
+    
+ // SuperAdmin 用：入学年度 + クラス + 科目コードで全学校から成績取得
+    public List<Test> filterBySubjectAndClassForSuperAdmin(int entYear, String classNum, String subjectCd) throws Exception {
+        List<Test> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "SELECT t.* FROM TEST t " +
+                "INNER JOIN STUDENT s ON t.STUDENT_NO = s.NO AND t.SCHOOL_CD = s.SCHOOL_CD " +
+                "WHERE s.ENT_YEAR = ? AND t.CLASS_NUM = ? AND t.SUBJECT_CD = ? " +
+                "ORDER BY t.SCHOOL_CD, t.STUDENT_NO, t.NO"
+            );
+
+            statement.setInt(1, entYear);
+            statement.setString(2, classNum);
+            statement.setString(3, subjectCd);
+
+            ResultSet rSet = statement.executeQuery();
+            while (rSet.next()) {
+                list.add(mapRowForSuperAdmin(rSet));
+            }
+
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+
+        return list;
+    }
+    
+ // SuperAdmin 用：全学校のクラス番号一覧取得
+    public List<String> findAllClassNum() throws Exception {
+        List<String> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(
+                "SELECT DISTINCT CLASS_NUM FROM STUDENT ORDER BY CLASS_NUM"
+            );
+
+            ResultSet rSet = statement.executeQuery();
+            while (rSet.next()) {
+                list.add(rSet.getString("CLASS_NUM"));
+            }
+
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+        }
+
+        return list;
+    }
+
+
+    
 }

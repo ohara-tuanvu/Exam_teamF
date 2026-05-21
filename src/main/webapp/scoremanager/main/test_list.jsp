@@ -7,8 +7,8 @@
 
     <c:param name="content">
 
+        <!-- VI: CSS hiệu ứng kính mờ cho toàn bộ giao diện -->
         <!-- JP: 画面全体のガラス風デザイン用CSS -->
-        <!-- VI: CSS hiệu ứng kính mờ cho toàn bộ màn hình -->
         <style>
             h2 {
                 background: rgba(255,255,255,0.55) !important;
@@ -44,8 +44,8 @@
 
         <section class="w-100 pb-3">
 
-            <!-- JP: 検索結果に応じてタイトルを切り替える -->
-            <!-- VI: Đổi tiêu đề tùy theo loại kết quả tìm kiếm -->
+            <!-- VI: Đổi tiêu đề theo loại tìm kiếm -->
+            <!-- JP: 検索種別に応じてタイトルを切り替える -->
             <c:choose>
                 <c:when test="${searchType == 'sj' && not empty testList}">
                     <h2 class="h3 mb-3 fw-normal py-2 px-3">成績一覧（科目）</h2>
@@ -58,20 +58,37 @@
                 </c:otherwise>
             </c:choose>
 
-            <!-- JP: 科目検索・学生検索の入力フォーム -->
             <!-- VI: Form tìm kiếm theo môn học và theo học sinh -->
+            <!-- JP: 科目検索・学生検索の入力フォーム -->
             <div class="glass-filter mx-3 mb-3">
 
-                <!-- JP: 科目別検索フォーム -->
                 <!-- VI: Form tìm kiếm theo môn học -->
+                <!-- JP: 科目検索フォーム -->
                 <form action="TestList.action" method="get">
                     <input type="hidden" name="f" value="sj" />
 
                     <div class="d-flex align-items-end gap-3 mb-2">
                         <div style="width:80px;"><label class="form-label fw-bold">科目情報</label></div>
 
-                        <!-- JP: 入学年度選択 -->
+                        <!-- VI: SUPERADMIN được chọn trường -->
+                        <!-- JP: SUPERADMINのみ学校選択を表示 -->
+                        <c:if test="${user.role == 2}">
+                            <div>
+                                <label class="form-label">学校</label>
+                                <select class="form-select" name="school_cd">
+                                    <option value="">----</option>
+                                    <c:forEach var="sc" items="${schoolList}">
+                                        <option value="${sc.cd}"
+                                            <c:if test="${sc.cd == school_cd}">selected</c:if>>
+                                            ${sc.name}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </c:if>
+
                         <!-- VI: Chọn năm nhập học -->
+                        <!-- JP: 入学年度選択 -->
                         <div>
                             <label class="form-label">入学年度</label>
                             <select class="form-select" name="f1">
@@ -82,8 +99,8 @@
                             </select>
                         </div>
 
-                        <!-- JP: クラス選択 -->
                         <!-- VI: Chọn lớp -->
+                        <!-- JP: クラス選択 -->
                         <div>
                             <label class="form-label">クラス</label>
                             <select class="form-select" name="f2">
@@ -94,8 +111,8 @@
                             </select>
                         </div>
 
-                        <!-- JP: 科目選択 -->
                         <!-- VI: Chọn môn học -->
+                        <!-- JP: 科目選択 -->
                         <div>
                             <label class="form-label">科目</label>
                             <select class="form-select" name="f3">
@@ -106,15 +123,11 @@
                             </select>
                         </div>
 
-                        <!-- JP: 検索ボタン -->
-                        <!-- VI: Nút tìm kiếm -->
                         <div>
                             <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
 
-                    <!-- JP: 科目検索エラー表示 -->
-                    <!-- VI: Hiển thị lỗi tìm kiếm theo môn -->
                     <c:if test="${not empty errorSj}">
                         <div class="text-warning">${errorSj}</div>
                     </c:if>
@@ -122,16 +135,33 @@
 
                 <hr/>
 
-                <!-- JP: 学生別検索フォーム -->
                 <!-- VI: Form tìm kiếm theo học sinh -->
+                <!-- JP: 学生検索フォーム -->
                 <form action="TestList.action" method="get">
                     <input type="hidden" name="f" value="st" />
 
                     <div class="d-flex align-items-end gap-3">
                         <div style="width:80px;"><label class="form-label fw-bold">学生情報</label></div>
 
+                        <!-- VI: SUPERADMIN chọn trường -->
+                        <!-- JP: SUPERADMINのみ学校選択を表示 -->
+                        <c:if test="${user.role == 2}">
+                            <div>
+                                <label class="form-label">学校</label>
+                                <select class="form-select" name="school_cd">
+                                    <option value="">----</option>
+                                    <c:forEach var="sc" items="${schoolList}">
+                                        <option value="${sc.cd}"
+                                            <c:if test="${sc.cd == school_cd}">selected</c:if>>
+                                            ${sc.name}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </c:if>
+
+                        <!-- VI: Nhập mã số sinh viên -->
                         <!-- JP: 学生番号入力 -->
-                        <!-- VI: Nhập mã số học sinh -->
                         <div>
                             <label class="form-label">学生番号</label>
                             <input type="text" class="form-control" name="f4"
@@ -139,15 +169,11 @@
                                    value="${searchType == 'st' ? f4 : ''}" />
                         </div>
 
-                        <!-- JP: 検索ボタン -->
-                        <!-- VI: Nút tìm kiếm -->
                         <div>
                             <button type="submit" class="btn btn-primary">検索</button>
                         </div>
                     </div>
 
-                    <!-- JP: 学生検索エラー表示 -->
-                    <!-- VI: Hiển thị lỗi tìm kiếm theo học sinh -->
                     <c:if test="${not empty errorSt}">
                         <div class="text-warning">${errorSt}</div>
                     </c:if>
@@ -155,17 +181,16 @@
 
             </div>
 
+            <!-- VI: Thông báo hướng dẫn ban đầu -->
             <!-- JP: 初期表示メッセージ -->
-            <!-- VI: Thông báo hướng dẫn khi chưa tìm kiếm -->
             <div class="mx-3 mt-3">
-    			<div class="alert alert-warning mx-3 mt-3">
-        			科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
-    			</div>
-			</div>
-            
+                <div class="alert alert-warning mx-3 mt-3">
+                    科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
+                </div>
+            </div>
 
-            <!-- JP: 科目別検索結果 -->
             <!-- VI: Kết quả tìm kiếm theo môn học -->
+            <!-- JP: 科目別検索結果 -->
             <c:if test="${searchType == 'sj' && not empty testList}">
                 <div class="mx-3 mb-2">
                     科目：
@@ -177,6 +202,9 @@
                 <table class="table table-bordered mx-3 w-auto">
                     <thead class="table-light">
                         <tr>
+                            <c:if test="${user.role == 2}">
+                                <th>学校</th>
+                            </c:if>
                             <th>入学年度</th>
                             <th>クラス</th>
                             <th>学生番号</th>
@@ -189,6 +217,9 @@
                         <c:forEach var="test" items="${testList}">
                             <c:if test="${test.no == 1}">
                                 <tr>
+                                    <c:if test="${user.role == 2}">
+                                        <td>${test.school.name}</td>
+                                    </c:if>
                                     <td>${test.student.entYear}</td>
                                     <td>${test.classNum}</td>
                                     <td>${test.student.no}</td>
@@ -202,8 +233,8 @@
                 </table>
             </c:if>
 
-            <!-- JP: 学生別検索結果 -->
             <!-- VI: Kết quả tìm kiếm theo học sinh -->
+            <!-- JP: 学生別検索結果 -->
             <c:if test="${searchType == 'st' && not empty testList}">
                 <div class="mx-3 mb-2">
                     氏名：${student.name}（${student.no}）
@@ -212,6 +243,9 @@
                 <table class="table table-bordered mx-3 w-auto">
                     <thead class="table-light">
                         <tr>
+                            <c:if test="${user.role == 2}">
+                                <th>学校</th>
+                            </c:if>
                             <th>科目名</th>
                             <th>科目コード</th>
                             <th>回数</th>
@@ -221,6 +255,9 @@
                     <tbody>
                         <c:forEach var="test" items="${testList}">
                             <tr>
+                                <c:if test="${user.role == 2}">
+                                    <td>${test.school.name}</td>
+                                </c:if>
                                 <td>${test.subject.name}</td>
                                 <td>${test.subject.cd}</td>
                                 <td>${test.no}</td>

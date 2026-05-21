@@ -10,6 +10,7 @@
     <c:param name="content">
 
         <!-- ⭐ CSS làm form nổi rõ nhưng vẫn thấy background -->
+        <!-- backgroundのCSS -->
         <style>
             /* Header mờ nhẹ */
             h2 {
@@ -46,6 +47,25 @@
             <!-- 入力フォーム -->
             <form action="SubjectCreateExecute.action" method="post" class="mt-4 px-4 glass-block">
 
+                <!-- SUPERADMIN のみ学校選択 -->
+                <c:if test="${user.role == 2}">
+                    <div class="mb-3 w-50">
+                        <label class="form-label">学校</label>
+
+                        <select name="school_cd" class="form-select">
+                            <option value="">選択してください</option>
+
+                            <c:forEach var="s" items="${school_list}">
+                                <option value="${s.cd}" ${s.cd == school_cd ? "selected" : ""}>
+                                    ${s.name}
+                                </option>
+                            </c:forEach>
+                        </select>
+
+                        <div class="text-danger small">${errors.school}</div>
+                    </div>
+                </c:if>
+
                 <!-- 科目コード -->
                 <div class="mb-3 w-50">
                     <label class="form-label" for="subject-cd-input">科目コード</label>
@@ -53,7 +73,7 @@
                     <input class="form-control" type="text" id="subject-cd-input" name="cd" 
                            value="${cd}" placeholder="科目コードを入力してください">
 
-                    <div class="text-danger small">${errors.get("cd")}</div>
+                    <div class="text-danger small">${errors.cd}</div>
                 </div>
 
                 <!-- 科目名 -->
@@ -63,7 +83,7 @@
                     <input class="form-control" type="text" id="subject-name-input" name="name" 
                            value="${name}" placeholder="科目名を入力してください">
 
-                    <div class="text-danger small">${errors.get("name")}</div>
+                    <div class="text-danger small">${errors.name}</div>
                 </div>
 
                 <!-- 登録ボタン -->
@@ -71,10 +91,10 @@
                     <button type="submit" class="btn btn-primary">登録</button>
                 </div>
                 
-               <!-- 戻るボタン -->
-			<div class="mt-3">
-    			<a href="SubjectList.action" class="btn btn-outline-secondary px-3">戻る</a>
-			</div>
+                <!-- 戻るボタン -->
+                <div class="mt-3">
+                    <a href="SubjectList.action" class="btn btn-outline-secondary px-3">戻る</a>
+                </div>
 
             </form>
         </section>

@@ -1,6 +1,4 @@
 package scoremanager.main;
-// Package chứa các Action thuộc module scoremanager/main
-// scoremanager/main モジュールに属する Action クラスをまとめるパッケージ
 
 import bean.Subject;
 import bean.Teacher;
@@ -11,42 +9,40 @@ import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class SubjectDeleteAction extends Action {
+
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-        // 1. ローカル変数の宣言
-        // Khai báo biến cục bộ
-        // セッション・教員情報・DAO を準備
+        // 1. セッション・教員情報・DAO
         HttpSession session = req.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
         SubjectDao sDao = new SubjectDao();
 
-        // 2. リクエストパラメータ―の取得
-        // Lấy tham số từ Request
-        // 削除対象の科目コードを取得（URL の cd パラメータ）
+        // 2. パラメータ取得
         String cd = req.getParameter("cd");
 
-        // 3. DBからデータ取得
-        // Lấy dữ liệu từ DB
-        // 削除対象の科目情報を取得（確認画面で表示するため）
-        Subject subject = sDao.get(cd, teacher.getSchool());
+        Subject subject = null;
 
-        // 4. ビジネスロジック（なし）
-        // Không có xử lý logic đặc biệt
-        // 特別な業務ロジックなし
+        // ⭐ SUPERADMIN → 学校制限なしで取得
+        if (teacher.getRole() == 2) {
+            subject = sDao.get(cd);   // ← ★ get(cd) を使う（学校なし）
+        } 
+        // ⭐ ADMIN / TEACHER → 自分の学校のみ
+        else {
+            subject = sDao.get(cd, teacher.getSchool());
+        }
 
-        // 5. DBへデータ保存（なし）
-        // Không lưu gì vào DB ở bước này
-        // DB 更新処理なし（削除はまだ行わない）
+        // 取得できなかった場合（不正アクセス or データなし）
+        if (subject == null) {
+            req.setAttribute("error", "科目情報が見つかりません。");
+            req.getRequestDispatcher("subject_list.jsp").forward(req, res);
+            return;
+        }
 
-        // 6. レスポンス値をセット
-        // Gửi dữ liệu sang JSP
-        // JSP に科目情報を渡す
+        // 6. JSPへセット
         req.setAttribute("subject", subject);
 
-        // 7. JSPへフォワード
-        // Chuyển hướng đến trang xác nhận xóa
-        // 削除確認画面（subject_delete.jsp）へフォワード
+        // 7. 削除確認画面へ
         req.getRequestDispatcher("subject_delete.jsp").forward(req, res);
     }
 }

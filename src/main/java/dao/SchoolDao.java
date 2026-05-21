@@ -217,6 +217,13 @@ public class SchoolDao extends Dao {
     }
 
     
+    /**
+     * findAllメソッド 全ての学校を取得する
+     * getAll() と同じだが、他のDAOと命名を揃えるために用意
+     */
+    public List<School> findAll() throws Exception {
+        return getAll();
+    }
+}
     
 
-}
