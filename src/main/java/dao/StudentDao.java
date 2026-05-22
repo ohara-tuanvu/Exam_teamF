@@ -12,10 +12,13 @@ import bean.Student;
 
 public class StudentDao extends Dao {
 
+    // SQL cơ bản: lấy học sinh theo mã trường
+    // 基本SQL：学校コードで学生を取得
     private String baseSql = "select * from student where school_cd=?";
 
     // ============================================================
-    // 1) 取得（1件）get(no)
+    // Lấy 1 học sinh theo mã số (no)
+    // 学生番号で1件取得
     // ============================================================
     public Student get(String no) throws Exception {
 
@@ -25,6 +28,8 @@ public class StudentDao extends Dao {
         PreparedStatement statement = null;
 
         try {
+            // Lấy dữ liệu theo mã số học sinh
+            // 学生番号で検索
             statement = connection.prepareStatement(
                 "select * from student where no=?"
             );
@@ -55,7 +60,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // ResultSet → List<Student>
+    // Chuyển ResultSet → List<Student>
+    // ResultSet を List<Student> に変換
     // ============================================================
     private List<Student> postFilter(ResultSet rSet, School school) throws Exception {
 
@@ -84,7 +90,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // 2) filter(school, entYear, classNum, isAttend)
+    // Lọc theo: trường + năm nhập học + lớp + trạng thái
+    // フィルター：学校 + 入学年度 + クラス + 在籍状態
     // ============================================================
     public List<Student> filter(School school, int entYear, String classNum, boolean isAttend) throws Exception {
 
@@ -121,7 +128,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // 3) filter(school, entYear, isAttend)
+    // Lọc theo: trường + năm nhập học
+    // フィルター：学校 + 入学年度
     // ============================================================
     public List<Student> filter(School school, int entYear, boolean isAttend) throws Exception {
 
@@ -155,7 +163,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // 4) filter(school, isAttend)
+    // Lọc theo: trường
+    // フィルター：学校のみ
     // ============================================================
     public List<Student> filter(School school, boolean isAttend) throws Exception {
 
@@ -187,7 +196,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // 5) save()
+    // Lưu học sinh (insert/update)
+    // 学生情報の保存（新規/更新）
     // ============================================================
     public boolean save(Student student) throws Exception {
 
@@ -196,10 +206,14 @@ public class StudentDao extends Dao {
         int count = 0;
 
         try {
+            // Kiểm tra tồn tại
+            // 既存データ確認
             Student old = get(student.getNo());
 
             if (old == null) {
 
+                // Thêm mới
+                // 新規登録
                 statement = connection.prepareStatement(
                     "insert into student (no, name, ent_year, class_num, is_attend, school_cd) values(?, ?, ?, ?, ?, ?)"
                 );
@@ -213,6 +227,8 @@ public class StudentDao extends Dao {
 
             } else {
 
+                // Cập nhật
+                // 更新処理
                 statement = connection.prepareStatement(
                     "update student set name=?, ent_year=?, class_num=?, is_attend=? where no=?"
                 );
@@ -235,7 +251,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // 6) get(no, school)
+    // Lấy học sinh theo mã số + trường
+    // 学生番号 + 学校コードで取得
     // ============================================================
     public Student get(String no, School school) throws Exception {
 
@@ -274,7 +291,8 @@ public class StudentDao extends Dao {
     }
 
     // ============================================================
-    // ⭐ SuperAdmin 用：全学生取得 findAll()
+    // SUPERADMIN: Lấy toàn bộ học sinh
+    // SUPERADMIN：全学生取得
     // ============================================================
     public List<Student> findAll() throws Exception {
 
@@ -300,10 +318,60 @@ public class StudentDao extends Dao {
                 student.setEntYear(rSet.getInt("ent_year"));
                 student.setClassNum(rSet.getString("class_num"));
                 student.setAttend(rSet.getBoolean("is_attend"));
-
                 student.setSchool(sDao.get(rSet.getString("school_cd")));
 
                 list.add(student);
+            }
+
+        } finally {
+            if (statement != null) statement.close();
+            if (connection != null) connection.close();
+        }
+
+        return list;
+    }
+
+    // ============================================================
+    // SUPERADMIN: Lọc toàn bộ học sinh theo điều kiện
+    // SUPERADMIN：全条件フィルター
+    // ============================================================
+    public List<Student> filterAll(int entYear, String classNum, boolean isAttend) throws Exception {
+
+        List<Student> list = new ArrayList<>();
+
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+
+        // SQL động theo điều kiện
+        // 条件に応じてSQLを組み立てる
+        String sql = "select * from student where 1=1";
+
+        if (entYear != 0) sql += " and ent_year=?";
+        if (!classNum.equals("0")) sql += " and class_num=?";
+        if (isAttend) sql += " and is_attend=true";
+
+        sql += " order by school_cd, class_num, no";
+
+        try {
+            statement = connection.prepareStatement(sql);
+
+            int idx = 1;
+            if (entYear != 0) statement.setInt(idx++, entYear);
+            if (!classNum.equals("0")) statement.setString(idx++, classNum);
+
+            ResultSet rSet = statement.executeQuery();
+
+            SchoolDao sDao = new SchoolDao();
+
+            while (rSet.next()) {
+                Student st = new Student();
+                st.setNo(rSet.getString("no"));
+                st.setName(rSet.getString("name"));
+                st.setEntYear(rSet.getInt("ent_year"));
+                st.setClassNum(rSet.getString("class_num"));
+                st.setAttend(rSet.getBoolean("is_attend"));
+                st.setSchool(sDao.get(rSet.getString("school_cd")));
+                list.add(st);
             }
 
         } finally {

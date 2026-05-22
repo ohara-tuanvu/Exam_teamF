@@ -1,6 +1,4 @@
-<%-- 学生一覧画面（Trang danh sách sinh viên） --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%> 
-
 <%@ taglib prefix="c" uri="jakarta.tags.core" %> 
 
 <c:import url="/common/base.jsp"> 
@@ -10,31 +8,25 @@
 
     <c:param name="content"> 
 
-        <!-- ⭐ CSS làm nổi từng dòng + filter block -->
+        <!-- VI: CSS làm nổi phần filter và từng dòng bảng -->
+        <!-- JP: フィルター部分と表の行を見やすくするCSS -->
         <style>
-            /* Khối filter nổi rõ */
             #filter {
                 background: rgba(255,255,255,0.65);
                 backdrop-filter: blur(6px);
                 border: 1px solid #e5e5e5;
                 box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             }
-
-            /* Header bảng */
             table.table th {
                 background: rgba(255,255,255,0.75);
                 backdrop-filter: blur(4px);
                 border-bottom: 2px solid #dcdcdc;
             }
-
-            /* ⭐ Từng dòng bảng nổi rõ */
             table.table tbody tr {
                 background: rgba(255,255,255,0.60);
                 backdrop-filter: blur(4px);
                 border-bottom: 1px solid #e5e5e5;
             }
-
-            /* Hover nhẹ */
             table.table tbody tr:hover {
                 background: rgba(240,247,255,0.85);
             }
@@ -45,14 +37,36 @@
                 学生管理
             </h2>
 
+            <!-- VI: Nút tạo mới sinh viên -->
+            <!-- JP: 新規学生登録ボタン -->
             <div class="my-2 text-end px-4">
                 <a href="StudentCreate.action" class="btn btn-primary">新規登録</a>
             </div>
 
+            <!-- VI: Form lọc danh sách sinh viên -->
+            <!-- JP: 学生検索フィルターフォーム -->
             <form method="get"> 
                 <div class="row border mx-3 mb-3 py-2 align-items-center rounded" id="filter">
 
-                    <!-- 入学年度 -->
+                    <!-- VI: Chọn trường (chỉ SUPERADMIN) -->
+                    <!-- JP: 学校選択（SUPERADMINのみ表示） -->
+                    <c:if test="${user.role == 2}">
+                        <div class="col-4">
+                            <label class="form-label">学校</label>
+                            <select class="form-select" name="school_cd">
+                                <option value=""></option>
+                                <c:forEach var="sc" items="${school_list}">
+                                    <option value="${sc.cd}"
+                                        <c:if test="${sc.cd == school_cd}">selected</c:if>>
+                                        ${sc.name}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </c:if>
+
+                    <!-- VI: Năm nhập học -->
+                    <!-- JP: 入学年度 -->
                     <div class="col-4">
                         <label class="form-label" for="student-f1-select">入学年度</label>
                         <select class="form-select" id="student-f1-select" name="f1">
@@ -66,7 +80,8 @@
                         </select>
                     </div>
 
-                    <!-- クラス -->
+                    <!-- VI: Lớp -->
+                    <!-- JP: クラス -->
                     <div class="col-4">
                         <label class="form-label" for="student-f2-select">クラス</label>
                         <select class="form-select" id="student-f2-select" name="f2">
@@ -80,7 +95,8 @@
                         </select>
                     </div>
 
-                    <!-- 在学中 -->
+                    <!-- VI: Trạng thái đang học -->
+                    <!-- JP: 在学中チェック -->
                     <div class="col-2 form-check text-center">
                         <label class="form-check-label" for="student-f3-check">
                             在学中
@@ -89,22 +105,28 @@
                         </label>
                     </div>
 
-                    <!-- 検索ボタン -->
+                    <!-- VI: Nút lọc -->
+                    <!-- JP: 絞込みボタン -->
                     <div class="col-2 text-center">
                         <button class="btn btn-secondary" id="filter-button">絞込み</button>
                     </div>
 
-                    <!-- エラーメッセージ -->
+                    <!-- VI: Hiển thị lỗi -->
+                    <!-- JP: エラーメッセージ表示 -->
                     <div class="mt-2 text-warning">${errors.get("f1")}</div>
 
                 </div>
             </form>
 
+            <!-- VI: Kết quả tìm kiếm -->
+            <!-- JP: 検索結果表示 -->
             <c:choose>
 
                 <c:when test="${students.size() > 0}">
                     <div>検索結果: ${students.size()}件</div>
 
+                    <!-- VI: Bảng danh sách sinh viên -->
+                    <!-- JP: 学生一覧テーブル -->
                     <table class="table table-hover">
                         <tr>
                             <th>入学年度</th>
@@ -128,6 +150,8 @@
                                     </c:choose>
                                 </td>
 
+                                <!-- VI: Nút chỉnh sửa -->
+                                <!-- JP: 変更ボタン -->
                                 <td>
                                     <a class="btn btn-primary" href="StudentUpdate.action?no=${student.no}">変更</a>
                                 </td>
@@ -137,7 +161,8 @@
                 </c:when>
 
                 <c:otherwise>
-                    <!-- ⭐ Chỉ hiển thị khi KHÔNG có lỗi -->
+                    <!-- VI: Không có dữ liệu -->
+                    <!-- JP: データなし -->
                     <c:if test="${empty errors}">
                         <div>学生情報が存在しませんでした。</div>
                     </c:if>
