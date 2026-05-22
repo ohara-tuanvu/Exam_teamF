@@ -8,8 +8,8 @@
 
     <c:param name="content"> 
 
-        <!-- VI: CSS làm nổi phần filter và từng dòng bảng -->
-        <!-- JP: フィルター部分と表の行を見やすくするCSS -->
+        <!-- VI: CSS làm nổi phần lọc và bảng danh sách -->
+        <!-- JP: フィルター部分と一覧表を見やすくするCSS -->
         <style>
             #filter {
                 background: rgba(255,255,255,0.65);
@@ -43,13 +43,13 @@
                 <a href="StudentCreate.action" class="btn btn-primary">新規登録</a>
             </div>
 
-            <!-- VI: Form lọc danh sách sinh viên -->
+            <!-- VI: Form lọc sinh viên -->
             <!-- JP: 学生検索フィルターフォーム -->
             <form method="get"> 
                 <div class="row border mx-3 mb-3 py-2 align-items-center rounded" id="filter">
 
-                    <!-- VI: Chọn trường (chỉ SUPERADMIN) -->
-                    <!-- JP: 学校選択（SUPERADMINのみ表示） -->
+                    <!-- VI: SUPERADMIN chọn trường -->
+                    <!-- JP: SUPERADMIN のみ学校選択を表示 -->
                     <c:if test="${user.role == 2}">
                         <div class="col-4">
                             <label class="form-label">学校</label>
@@ -133,7 +133,15 @@
                             <th>学生番号</th>
                             <th>氏名</th>
                             <th>クラス</th>
+
+                            <!-- VI: SUPERADMIN xem cột trường -->
+                            <!-- JP: SUPERADMIN のみ学校列を表示 -->
+                            <c:if test="${user.role == 2}">
+                                <th>学校</th>
+                            </c:if>
+
                             <th class="text-center">在学中</th>
+                            <th></th>
                         </tr>
 
                         <c:forEach var="student" items="${students}">
@@ -142,6 +150,12 @@
                                 <td>${student.no}</td>
                                 <td>${student.name}</td>
                                 <td>${student.classNum}</td>
+
+                                <!-- VI: SUPERADMIN hiển thị tên trường -->
+                                <!-- JP: SUPERADMIN は学校名を表示 -->
+                                <c:if test="${user.role == 2}">
+                                    <td>${student.school.name}</td>
+                                </c:if>
 
                                 <td class="text-center">
                                     <c:choose>
